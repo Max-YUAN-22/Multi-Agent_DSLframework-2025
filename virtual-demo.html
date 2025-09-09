@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent DSL Framework - 虚拟实例演示</title>
+    <link rel="stylesheet" href="virtual-demo.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Multi-Agent DSL Framework</h1>
+            <p class="subtitle">虚拟实例演示 / Virtual Demo</p>
+            <p class="description">无需部署即可体验系统功能</p>
+        </div>
+    </header>
+
+    <main>
+        <section class="demo-controls">
+            <div class="container">
+                <h2>系统控制面板 / System Control Panel</h2>
+                <div class="control-grid">
+                    <div class="control-card">
+                        <h3>事件模拟器 / Event Simulator</h3>
+                        <div class="simulator-controls">
+                            <button id="startSimulation" class="btn btn-primary">开始模拟 / Start Simulation</button>
+                            <button id="stopSimulation" class="btn btn-secondary" disabled>停止模拟 / Stop Simulation</button>
+                            <button id="sendEvent" class="btn btn-accent">发送事件 / Send Event</button>
+                        </div>
+                        <div class="event-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">已发送事件 / Events Sent:</span>
+                                <span class="stat-value" id="eventsSent">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">处理中 / Processing:</span>
+                                <span class="stat-value" id="processing">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">已完成 / Completed:</span>
+                                <span class="stat-value" id="completed">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="control-card">
+                        <h3>智能体状态 / Agent Status</h3>
+                        <div class="agent-grid">
+                            <div class="agent-item" data-agent="perception">
+                                <div class="agent-icon">👁️</div>
+                                <div class="agent-info">
+                                    <h4>感知智能体 / Perception Agent</h4>
+                                    <div class="agent-status active">活跃 / Active</div>
+                                </div>
+                            </div>
+                            <div class="agent-item" data-agent="safety">
+                                <div class="agent-icon">🛡️</div>
+                                <div class="agent-info">
+                                    <h4>安全智能体 / Safety Agent</h4>
+                                    <div class="agent-status active">活跃 / Active</div>
+                                </div>
+                            </div>
+                            <div class="agent-item" data-agent="traffic">
+                                <div class="agent-icon">🚦</div>
+                                <div class="agent-info">
+                                    <h4>交通智能体 / Traffic Agent</h4>
+                                    <div class="agent-status active">活跃 / Active</div>
+                                </div>
+                            </div>
+                            <div class="agent-item" data-agent="reroute">
+                                <div class="agent-icon">🗺️</div>
+                                <div class="agent-info">
+                                    <h4>重路由智能体 / Reroute Agent</h4>
+                                    <div class="agent-status standby">待机 / Standby</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="real-time-visualization">
+            <div class="container">
+                <h2>实时可视化 / Real-time Visualization</h2>
+                <div class="visualization-grid">
+                    <div class="chart-container">
+                        <h3>事件处理延迟 / Event Processing Latency</h3>
+                        <div class="chart" id="latencyChart">
+                            <div class="chart-placeholder">
+                                <div class="chart-line"></div>
+                                <div class="chart-line"></div>
+                                <div class="chart-line"></div>
+                                <div class="chart-line"></div>
+                                <div class="chart-line"></div>
+                            </div>
+                            <div class="chart-labels">
+                                <span>0ms</span>
+                                <span>100ms</span>
+                                <span>200ms</span>
+                                <span>300ms</span>
+                                <span>400ms</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3>缓存命中率 / Cache Hit Rate</h3>
+                        <div class="chart" id="cacheChart">
+                            <div class="cache-meter">
+                                <div class="cache-fill" id="cacheFill"></div>
+                                <div class="cache-text" id="cacheText">85%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3>吞吐量 / Throughput</h3>
+                        <div class="chart" id="throughputChart">
+                            <div class="throughput-bars">
+                                <div class="bar" style="height: 60%"></div>
+                                <div class="bar" style="height: 80%"></div>
+                                <div class="bar" style="height: 45%"></div>
+                                <div class="bar" style="height: 90%"></div>
+                                <div class="bar" style="height: 70%"></div>
+                                <div class="bar" style="height: 85%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="event-log">
+            <div class="container">
+                <h2>事件日志 / Event Log</h2>
+                <div class="log-container">
+                    <div class="log-header">
+                        <span>时间 / Time</span>
+                        <span>事件类型 / Event Type</span>
+                        <span>智能体 / Agent</span>
+                        <span>状态 / Status</span>
+                        <span>延迟 / Latency</span>
+                    </div>
+                    <div class="log-content" id="logContent">
+                        <div class="log-entry">
+                            <span class="time">14:32:15</span>
+                            <span class="event-type">Traffic Incident</span>
+                            <span class="agent">Perception</span>
+                            <span class="status completed">Completed</span>
+                            <span class="latency">45ms</span>
+                        </div>
+                        <div class="log-entry">
+                            <span class="time">14:32:18</span>
+                            <span class="event-type">Safety Alert</span>
+                            <span class="agent">Safety</span>
+                            <span class="status processing">Processing</span>
+                            <span class="latency">-</span>
+                        </div>
+                        <div class="log-entry">
+                            <span class="time">14:32:20</span>
+                            <span class="event-type">Route Update</span>
+                            <span class="agent">Reroute</span>
+                            <span class="status pending">Pending</span>
+                            <span class="latency">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="performance-metrics">
+            <div class="container">
+                <h2>性能指标 / Performance Metrics</h2>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon">⚡</div>
+                        <div class="metric-info">
+                            <h3>平均延迟 / Avg Latency</h3>
+                            <div class="metric-value" id="avgLatency">67ms</div>
+                            <div class="metric-trend positive">↓ 12%</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">🎯</div>
+                        <div class="metric-info">
+                            <h3>缓存命中率 / Cache Hit Rate</h3>
+                            <div class="metric-value" id="cacheHitRate">85%</div>
+                            <div class="metric-trend positive">↑ 5%</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">📊</div>
+                        <div class="metric-info">
+                            <h3>吞吐量 / Throughput</h3>
+                            <div class="metric-value" id="throughput">1,247/min</div>
+                            <div class="metric-trend positive">↑ 8%</div>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon">✅</div>
+                        <div class="metric-info">
+                            <h3>成功率 / Success Rate</h3>
+                            <div class="metric-value" id="successRate">98.7%</div>
+                            <div class="metric-trend positive">↑ 2%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Multi-Agent DSL Framework. 多智能体领域特定语言框架项目</p>
+            <p><a href="../index.html">返回主页 / Back to Home</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // 模拟数据更新
+        let simulationRunning = false;
+        let eventCounter = 0;
+        let processingCounter = 0;
+        let completedCounter = 0;
+
+        const eventTypes = ['Traffic Incident', 'Safety Alert', 'Route Update', 'Weather Change', 'Emergency'];
+        const agents = ['Perception', 'Safety', 'Traffic', 'Reroute', 'Weather'];
+        const statuses = ['Pending', 'Processing', 'Completed'];
+
+        function updateStats() {
+            document.getElementById('eventsSent').textContent = eventCounter;
+            document.getElementById('processing').textContent = processingCounter;
+            document.getElementById('completed').textContent = completedCounter;
+        }
+
+        function addLogEntry() {
+            const logContent = document.getElementById('logContent');
+            const now = new Date();
+            const time = now.toTimeString().split(' ')[0];
+            const eventType = eventTypes[Math.floor(Math.random() * eventTypes.length)];
+            const agent = agents[Math.floor(Math.random() * agents.length)];
+            const status = statuses[Math.floor(Math.random() * statuses.length)];
+            const latency = status === 'Completed' ? Math.floor(Math.random() * 200) + 20 + 'ms' : '-';
+
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `
+                <span class="time">${time}</span>
+                <span class="event-type">${eventType}</span>
+                <span class="agent">${agent}</span>
+                <span class="status ${status.toLowerCase()}">${status}</span>
+                <span class="latency">${latency}</span>
+            `;
+
+            logContent.insertBefore(entry, logContent.firstChild);
+            
+            // 保持最多20条记录
+            if (logContent.children.length > 20) {
+                logContent.removeChild(logContent.lastChild);
+            }
+        }
+
+        function updateMetrics() {
+            // 更新缓存命中率
+            const cacheRate = 80 + Math.random() * 15;
+            document.getElementById('cacheHitRate').textContent = Math.round(cacheRate) + '%';
+            document.getElementById('cacheText').textContent = Math.round(cacheRate) + '%';
+            document.getElementById('cacheFill').style.width = cacheRate + '%';
+
+            // 更新平均延迟
+            const avgLatency = 50 + Math.random() * 50;
+            document.getElementById('avgLatency').textContent = Math.round(avgLatency) + 'ms';
+
+            // 更新吞吐量
+            const throughput = 1000 + Math.random() * 500;
+            document.getElementById('throughput').textContent = Math.round(throughput) + '/min';
+
+            // 更新成功率
+            const successRate = 95 + Math.random() * 4;
+            document.getElementById('successRate').textContent = successRate.toFixed(1) + '%';
+        }
+
+        function simulateEvent() {
+            if (!simulationRunning) return;
+
+            eventCounter++;
+            processingCounter++;
+            updateStats();
+
+            // 模拟处理延迟
+            setTimeout(() => {
+                processingCounter--;
+                completedCounter++;
+                updateStats();
+                addLogEntry();
+            }, Math.random() * 3000 + 500);
+
+            // 更新指标
+            updateMetrics();
+        }
+
+        // 事件监听器
+        document.getElementById('startSimulation').addEventListener('click', () => {
+            simulationRunning = true;
+            document.getElementById('startSimulation').disabled = true;
+            document.getElementById('stopSimulation').disabled = false;
+            
+            // 开始定期发送事件
+            const interval = setInterval(() => {
+                if (simulationRunning) {
+                    simulateEvent();
+                } else {
+                    clearInterval(interval);
+                }
+            }, 2000);
+        });
+
+        document.getElementById('stopSimulation').addEventListener('click', () => {
+            simulationRunning = false;
+            document.getElementById('startSimulation').disabled = false;
+            document.getElementById('stopSimulation').disabled = true;
+        });
+
+        document.getElementById('sendEvent').addEventListener('click', () => {
+            simulateEvent();
+        });
+
+        // 初始化
+        updateStats();
+        updateMetrics();
+    </script>
+</body>
+</html>
