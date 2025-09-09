@@ -73,6 +73,15 @@ class DSL:
         self.bus = EventBus()
         self._llm: Optional[Callable[[str, Optional[str]], str]] = None
         self.metrics = Metrics()
+        self.history: List[Dict[str, Any]] = []
+
+    def add_to_history(self, prompt: str, result: Any):
+        self.history.append({"prompt": prompt, "result": result, "timestamp": time.time()})
+
+    def get_history(self, last_n: int = 0) -> List[Dict[str, Any]]:
+        if last_n > 0:
+            return self.history[-last_n:]
+        return self.history
 
     def use_llm(self, llm_callable: Callable[[str, Optional[str]], str], *, use_cache: bool = True):
         """Configure the LLM callable for the DSL and scheduler."""

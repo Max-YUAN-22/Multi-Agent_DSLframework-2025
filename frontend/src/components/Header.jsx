@@ -5,8 +5,11 @@ import './Header.css';
 const Header = () => {
   return (
     <header className="page__header">
-      <h1>City Brain Agent</h1>
-      <p className="subtitle">A platform for demonstrating multi-agent collaboration based on Large Language Models (LLMs)</p>
+      <div className="header-content">
+        <h1 className="main-title">Multi-Agent DSL Framework</h1>
+        <h2 className="subtitle">Intelligent City Management & Autonomous Driving Coordination</h2>
+        <p className="description">A real-time multi-agent system powered by Domain-Specific Language (DSL) orchestration</p>
+      </div>
     </header>
   );
 };

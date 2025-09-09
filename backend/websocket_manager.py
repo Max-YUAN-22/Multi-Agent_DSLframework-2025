@@ -56,12 +56,26 @@ class ConnectionManager:
                 self.disconnect(ws)
 
     async def broadcast(self, message: dict):
-        """Sends a JSON message to all active connections."""
+        """Sends a JSON message to all active connections, ensuring it's valid."""
+        import json
         print(f"Broadcasting message to {len(self.active)} clients: {message}")
+
+        try:
+            # Ensure the message is JSON serializable, using a robust default handler
+            message_str = json.dumps(message, default=lambda o: f"<unserializable: {type(o).__name__}>")
+        except TypeError as e:
+            print(f"Failed to serialize message: {e}")
+            # Fallback to a safe, valid JSON object
+            message_str = json.dumps({
+                "type": "error",
+                "title": "Serialization Error",
+                "payload": {"details": "A server-side error occurred while serializing a message."}
+            })
+
         dead: List[WebSocket] = []
         for ws in self.active:
             try:
-                await ws.send_json(message)
+                await ws.send_text(message_str)
             except Exception as e:
                 print(f"Failed to broadcast to {ws.client}: {e}. Disconnecting.")
                 dead.append(ws)

@@ -8,9 +8,7 @@ import { EventProvider } from './contexts/EventContext';
 const container = document.getElementById('root');
 const root = createRoot(container);
 root.render(
-  <EventProvider>
     <App />
-  </EventProvider>
 );
 
 reportWebVitals();

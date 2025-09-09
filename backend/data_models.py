@@ -4,17 +4,20 @@ from pydantic import BaseModel, Field, field_validator
 
 
 class AutonomousDrivingEvent(BaseModel):
-    timestamp: str
-    road: str
-    event_type: str
-    severity: int
-    vehicles: int
-    lanes_blocked: int
-    agent_latency_ms: float
-    cache_hit: int
-    clearance_time_s: float
-    reroute_delay_s: float
-    is_congested: int
+    start_location: str
+    end_location: str
+    passengers: int
+    timestamp: Optional[str] = None
+    road: Optional[str] = None
+    event_type: Optional[str] = None
+    severity: Optional[int] = None
+    vehicles: Optional[int] = None
+    lanes_blocked: Optional[int] = None
+    agent_latency_ms: Optional[float] = None
+    cache_hit: Optional[int] = None
+    clearance_time_s: Optional[float] = None
+    reroute_delay_s: Optional[float] = None
+    is_congested: Optional[int] = None
 
 
 
@@ -33,6 +36,8 @@ class TrafficData(BaseModel):
 class WeatherAlert(BaseModel):
     alert_type: str = Field(min_length=1)
     area: str = Field(min_length=1)
+    location: Optional[str] = None
+    severity: Optional[int] = None
 
 
 class ParkingData(BaseModel):
@@ -43,6 +48,7 @@ class ParkingData(BaseModel):
 class SafetyData(BaseModel):
     location: str = Field(min_length=1)
     safety_status: Literal["ok", "warning", "incident"]
+    require_human_intervention: Optional[bool] = None
 
 
 class DispatchEventRequest(BaseModel):
@@ -52,9 +58,7 @@ class DispatchEventRequest(BaseModel):
 
 
 class GenerateReportRequest(BaseModel):
-    location: Optional[str] = None
-    weatherAlert: Optional[str] = None
-    safetyStatus: Optional[Literal["ok", "warning", "incident"]] = None
+    events: list
 
 
 class ReportRequest(BaseModel):

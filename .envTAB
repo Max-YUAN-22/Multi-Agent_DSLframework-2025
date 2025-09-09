@@ -1,0 +1,32 @@
+# Environment Variables Configuration
+
+# Backend Configuration
+BACKEND_PORT=8000
+BACKEND_HOST=0.0.0.0
+
+# DeepSeek API Configuration
+DEEPSEEK_API_KEY=your_api_key_here  # Get your API key from https://platform.deepseek.com
+X
+# WebSocket Configuration
+WEBSOCKET_URL=ws://localhost:8000/ws
+
+# Frontend Configuration
+FRONTEND_PORT=3000
+REACT_APP_API_BASE_URL=http://localhost:8000
+
+
+G
+^X
+
+
+
+
+exit
+
+
+
+
+
+
+
+conda ac

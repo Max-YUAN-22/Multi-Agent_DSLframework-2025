@@ -1,4 +1,4 @@
-from core.llm import get_llm
+from core.llm import llm_callable
 from dsl.dsl import DSL
 from agents.traffic_manager_agent import TrafficManagerAgent
 from agents.traffic_monitor_agent import TrafficMonitorAgent
@@ -15,9 +15,9 @@ from agents.parking_agent import ParkingAgent
 from agents.safety_agent import SafetyAgent
 from backend.websocket_manager import manager as websocket_manager
 
-llm = get_llm()
+# 创建DSL实例并配置LLM
 dsl_instance = DSL(workers=8)
-dsl_instance.use_llm(llm)
+dsl_instance.use_llm(llm_callable)
 
 traffic_manager_agent = TrafficManagerAgent(dsl_instance=dsl_instance)
 traffic_monitor_agent = TrafficMonitorAgent(dsl_instance=dsl_instance)

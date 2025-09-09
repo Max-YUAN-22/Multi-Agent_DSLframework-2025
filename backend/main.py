@@ -1,22 +1,17 @@
-# backend/main.py
-import os
-import sys
-import uvicorn
+import asyncio
 import json
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+import sys
+import os
+
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-
-# Add project root to the Python path to allow absolute imports from root
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, project_root)
-
+from backend.dependencies import get_dsl_instance
+from backend.dsl_workflows import smart_city_simulation_workflow, generate_report_workflow
+from backend.socket_app import sio, start_cleanup_task
 from backend.api_routes import router
-from backend.websocket_manager import manager
+import socketio
 
-# Create FastAPI app
-app = FastAPI(title="Multi-Agent DSL Backend", version="1.0.0")
-
-# Add CORS middleware
+app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -25,28 +20,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include API router
+# 包含API路由
 app.include_router(router)
 
-@app.websocket("/ws")
-async def ws_endpoint(websocket: WebSocket):
-    await manager.connect(websocket)
-    print("connection open")
-    try:
-        while True:
-            data = await websocket.receive_text()
-            try:
-                message = json.loads(data)
-                if message.get("type") == "pong":
-                    manager.update_last_pong(websocket)
-            except json.JSONDecodeError:
-                print(f"Received non-JSON message: {data}")
+dsl = get_dsl_instance()
 
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)
-        print("connection closed")
+sio_app = socketio.ASGIApp(sio)
+app.mount("/socket.io", sio_app)
 
+# 启动清理任务
+@app.on_event("startup")
+async def startup_event():
+    await start_cleanup_task()
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8008)

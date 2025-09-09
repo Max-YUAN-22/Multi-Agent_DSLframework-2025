@@ -5,7 +5,7 @@ import './Footer.css';
 const Footer = () => {
   return (
     <footer className="page__footer">
-      <p>Made with ❤️ by the <code>deepseek-coder</code> team.</p>
+      <p>Crafted by Max Yuan with guidance from Prof. Shi, IMECAS.</p>
     </footer>
   );
 };

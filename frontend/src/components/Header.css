@@ -1,18 +1,64 @@
 /* frontend/src/components/Header.css */
 .page__header {
   text-align: center;
-  padding: 48px 24px 16px;
+  padding: 60px 24px 40px;
+  background: linear-gradient(135deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 100%);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
-.page__header h1 {
-  margin: 0;
-  font-size: 36px;
-  font-weight: 800;
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.main-title {
+  margin: 0 0 16px;
+  font-size: 48px;
+  font-weight: 900;
   color: #fff;
+  text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #10b981 0%, #3b82f6 50%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.1;
 }
 
 .subtitle {
-  margin: 12px 0 0;
+  margin: 0 0 12px;
+  font-size: 24px;
+  font-weight: 600;
+  color: #e2e8f0;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  letter-spacing: -0.01em;
+}
+
+.description {
+  margin: 0;
   color: #a0aec0;
   font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .main-title {
+    font-size: 36px;
+  }
+  
+  .subtitle {
+    font-size: 20px;
+  }
+  
+  .description {
+    font-size: 14px;
+  }
+  
+  .page__header {
+    padding: 40px 16px 30px;
+  }
 }
