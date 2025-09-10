@@ -74,8 +74,8 @@ Multi-Agent DSL Framework is an innovative multi-agent domain-specific language 
 
 1. **克隆项目 / Clone Repository**
 ```bash
-git clone https://github.com/Max-YUAN-22/multi-agent-dsl-final.git
-cd multi-agent-dsl-final
+git clone https://github.com/Max-YUAN-22/Final-DSL.git
+cd Final-DSL
 ```
 
 2. **安装依赖 / Install Dependencies**
@@ -114,7 +114,7 @@ docker run -d -p 3001:3001 --name multi-agent-dsl multi-agent-dsl:latest
 ## 📁 项目结构 / Project Structure
 
 ```
-multi-agent-dsl-final/
+Final-DSL/
 ├── agents/                 # 智能体实现 / Agent implementations
 ├── backend/               # 后端服务 / Backend services
 ├── frontend/              # 前端界面 / Frontend interface
@@ -232,8 +232,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 联系我们 / Contact
 
-- **项目主页**: [GitHub Repository](https://github.com/Max-YUAN-22/multi-agent-dsl-final)
-- **问题反馈**: [Issues](https://github.com/Max-YUAN-22/multi-agent-dsl-final/issues)
+- **项目主页**: [GitHub Repository](https://github.com/Max-YUAN-22/Final-DSL)
+- **问题反馈**: [Issues](https://github.com/Max-YUAN-22/Final-DSL/issues)
 
 ## 🙏 致谢 / Acknowledgments
 
