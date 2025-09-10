@@ -119,8 +119,8 @@ multi-agent-dsl-final/
 ## 🎮 演示 / Demos
 
 ### 🌐 在线演示 / Online Demo
-- **主页面**: [项目展示](https://max-yuan-22.github.io/multi-agent-dsl-presentation/)
-- **虚拟演示**: [虚拟实例演示](virtual-demo.html) - 无需本地部署即可体验
+- **主页面**: [项目展示](https://max-yuan-22.github.io/Final-DSL/)
+- **虚拟演示**: [虚拟实例演示](https://max-yuan-22.github.io/Final-DSL/virtual-demo.html) - 无需本地部署即可体验
 
 ### 📊 实验结果 / Experimental Results
 - **智能城市性能**: 缓存命中率85%+，延迟<100ms
@@ -220,7 +220,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 联系我们 / Contact
 
 - **项目主页**: [GitHub Repository](https://github.com/Max-YUAN-22/multi-agent-dsl-final)
-- **演示网站**: [Live Demo](https://max-yuan-22.github.io/multi-agent-dsl-presentation/)
 - **问题反馈**: [Issues](https://github.com/Max-YUAN-22/multi-agent-dsl-final/issues)
 
 ## 🙏 致谢 / Acknowledgments
