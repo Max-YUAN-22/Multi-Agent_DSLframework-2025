@@ -36,22 +36,6 @@ Multi-Agent DSL Framework is an innovative multi-agent domain-specific language 
 
 ## 🏗️ 系统架构 / System Architecture
 
-### 架构概览 / Architecture Overview
-
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Event Sources │    │  Multi-Agent    │    │   Runtime       │
-│                 │───▶│     DSL         │───▶│   Engine        │
-│ • IoT Devices   │    │                 │    │                 │
-│ • APIs          │    │ • spawn         │    │ • RadixCache    │
-│ • Sensors       │    │ • route         │    │ • Scheduler     │
-└─────────────────┘    │ • gather        │    │ • EventBus      │
-                        │ • with_sla      │    └─────────────────┘
-                        │ • contract      │
-                        │ • blackboard    │
-                        └─────────────────┘
-```
-
 ### 详细架构图 / Detailed Architecture Diagrams
 
 #### 系统架构概览 / System Architecture Overview
