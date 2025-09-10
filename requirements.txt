@@ -9,3 +9,32 @@ uvicorn
 python-socketio==5.11.0
 python-engineio==4.9.0
 websockets
+
+# 测试依赖
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-asyncio>=0.21.0
+pytest-mock>=3.10.0
+
+# 代码质量工具
+black>=23.0.0
+isort>=5.12.0
+flake8>=6.0.0
+mypy>=1.0.0
+
+# 性能测试
+psutil>=5.9.0
+
+# 安全扫描
+safety>=2.3.0
+bandit>=1.7.0
+
+# 数据库支持
+sqlalchemy>=2.0.0
+alembic>=1.11.0
+
+# 缓存支持
+redis>=4.5.0
+
+# 监控支持
+prometheus-client>=0.16.0
