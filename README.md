@@ -172,29 +172,51 @@ dsl.on("emergency_event", handler="emergency_response")
 
 ## 🎯 应用场景 / Use Cases
 
-### 🏙️ 智能城市 / Smart City
-- 交通流量管理 / Traffic flow management
-- 环境监测 / Environmental monitoring
-- 应急响应 / Emergency response
-- 资源优化 / Resource optimization
+### ✅ 现有应用场景 / Current Applications
 
-### 🚗 自动驾驶 / Autonomous Driving
-- 实时决策 / Real-time decision making
-- 路径规划 / Path planning
-- 安全监控 / Safety monitoring
-- 协同驾驶 / Cooperative driving
+#### 🏙️ 智能城市 / Smart City
+- **交通流量管理** / Traffic flow management
+- **环境监测** / Environmental monitoring  
+- **应急响应** / Emergency response
+- **资源优化** / Resource optimization
 
-### 🏥 智慧医疗 / Smart Healthcare
-- 医疗设备监控 / Medical device monitoring
-- 患者数据管理 / Patient data management
-- 诊断辅助 / Diagnostic assistance
-- 资源调度 / Resource scheduling
+#### 🚗 自动驾驶 / Autonomous Driving
+- **实时决策** / Real-time decision making
+- **路径规划** / Path planning
+- **安全监控** / Safety monitoring
+- **协同驾驶** / Cooperative driving
 
-### 🏭 智能制造 / Smart Manufacturing
-- 生产线优化 / Production line optimization
-- 质量监控 / Quality monitoring
-- 预测维护 / Predictive maintenance
-- 供应链管理 / Supply chain management
+### 🚀 未来待开发应用场景 / Future Applications
+
+#### 🏥 智慧医疗 / Smart Healthcare
+- **医疗设备监控** / Medical device monitoring
+- **患者数据管理** / Patient data management
+- **诊断辅助** / Diagnostic assistance
+- **资源调度** / Resource scheduling
+
+#### 🏭 智能制造 / Smart Manufacturing
+- **生产线优化** / Production line optimization
+- **质量监控** / Quality monitoring
+- **预测维护** / Predictive maintenance
+- **供应链管理** / Supply chain management
+
+#### 💰 量化金融 / Quantitative Finance
+- **实时交易决策** / Real-time trading decisions
+- **风险评估** / Risk assessment
+- **市场情绪分析** / Market sentiment analysis
+- **投资组合优化** / Portfolio optimization
+
+#### 🛰️ 遥感分析 / Remote Sensing
+- **卫星图像处理** / Satellite image processing
+- **城市规划** / Urban planning
+- **环境监测** / Environmental monitoring
+- **灾害预警** / Disaster early warning
+
+#### 🌐 网络安全 / Cybersecurity
+- **威胁检测** / Threat detection
+- **异常行为分析** / Anomaly behavior analysis
+- **安全事件响应** / Security incident response
+- **入侵防护** / Intrusion prevention
 
 ## 🤝 贡献指南 / Contributing
 
