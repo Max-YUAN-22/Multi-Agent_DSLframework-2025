@@ -90,18 +90,21 @@ class Config:
 
 # 开发环境配置
 class DevelopmentConfig(Config):
+    ENVIRONMENT = "development"
     DEBUG = True
     LOG_LEVEL = "DEBUG"
     CACHE_TTL = 60  # 1 minute for dev
 
 # 生产环境配置
 class ProductionConfig(Config):
+    ENVIRONMENT = "production"
     DEBUG = False
     LOG_LEVEL = "WARNING"
     CACHE_TTL = 3600  # 1 hour for prod
 
 # 测试环境配置
 class TestingConfig(Config):
+    ENVIRONMENT = "testing"
     DEBUG = True
     DATABASE_URL = "sqlite:///./test.db"
     CACHE_TTL = 1  # 1 second for testing
