@@ -134,6 +134,40 @@ header h1 {
     transform: translateY(-2px);
 }
 
+.header-actions {
+    margin-top: 2rem;
+}
+
+.github-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.github-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    color: white;
+    text-decoration: none;
+}
+
+.github-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
 .header-visual {
     position: relative;
     height: 400px;
@@ -1011,6 +1045,31 @@ footer::before {
     flex-wrap: wrap;
 }
 
+.acknowledgments {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.acknowledgments h4 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    color: #ecf0f1;
+    font-weight: 600;
+}
+
+.acknowledgments p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 0.8rem;
+    opacity: 0.85;
+}
+
+.acknowledgments em {
+    font-style: italic;
+    opacity: 0.8;
+}
+
 .version-badge,
 .license-badge,
 .status-badge {
@@ -1160,6 +1219,21 @@ footer::before {
     
     .description {
         font-size: 1rem;
+    }
+    
+    .header-badges {
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .header-actions {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+    
+    .github-btn {
+        font-size: 0.9rem;
+        padding: 0.6rem 1.2rem;
     }
     
     h2 {

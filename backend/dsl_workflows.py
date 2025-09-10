@@ -1,5 +1,6 @@
 import asyncio
 import json
+from datetime import datetime
 from typing import Dict, Any
 from backend.dependencies import get_dsl_instance, get_websocket_manager
 from dsl.dsl import DSL
@@ -9,6 +10,7 @@ dsl = get_dsl_instance()
 async def broadcast_message_task(dsl: DSL, message: Any):
     """Broadcasts a message to all connected Socket.IO clients."""
     from backend.socket_app import sio
+    from datetime import datetime
     try:
         if isinstance(message, str):
             # Wrap raw strings in a structured JSON object
@@ -16,12 +18,15 @@ async def broadcast_message_task(dsl: DSL, message: Any):
                 "type": "simulation_log",
                 "title": "Simulation Log",
                 "payload": {"details": message},
-                "timestamp": asyncio.get_event_loop().time()
+                "timestamp": datetime.now().isoformat()
             }, room='default_room')
         elif isinstance(message, dict):
-            # Ensure timestamp is present
+            # Ensure timestamp is present and in ISO format
             if 'timestamp' not in message:
-                message['timestamp'] = asyncio.get_event_loop().time()
+                message['timestamp'] = datetime.now().isoformat()
+            elif isinstance(message['timestamp'], (int, float)):
+                # Convert Unix timestamp to ISO format
+                message['timestamp'] = datetime.fromtimestamp(message['timestamp']).isoformat()
             # Send dictionaries as-is
             await sio.emit('broadcast', message, room='default_room')
         else:
@@ -162,169 +167,207 @@ async def smart_city_simulation_workflow(dsl: DSL, entry_point: str, task_data: 
     """
     print(f"Starting smart city simulation workflow with entry_point: {entry_point}")
     
-    # 导入智能体实例
+    # 导入主智能体和子智能体实例
     from backend.dependencies import (
-        traffic_manager_agent, weather_agent, parking_agent, safety_agent
+        city_manager_agent, traffic_manager_agent, weather_agent, parking_agent, safety_agent
     )
     
-    # Acknowledge the start of the workflow
-    ack_message = f"开始智能城市模拟工作流，入口任务: '{entry_point}'。正在启动模拟..."
+    # 发送初始触发事件
+    event_type_map = {
+        "autonomous_driving_task": "autonomous_driving",
+        "weather_alert_task": "weather_alert", 
+        "parking_update_task": "parking_update",
+        "safety_inspection_task": "safety_inspection"
+    }
+    
+    initial_event_type = event_type_map.get(entry_point, entry_point)
+    # 不重复发送初始事件，因为API已经发送了
+    # await broadcast_message_task(dsl, {
+    #     "type": initial_event_type,
+    #     "payload": task_data,
+    #     "title": f"{initial_event_type.replace('_', ' ').title()} Event"
+    # })
+    
+    # 简化的启动消息 - 合并工作流启动和主智能体协调
     await broadcast_message_task(dsl, {
-        "type": "agent_message", 
-        "payload": ack_message, 
-        "title": "城市管理器",
-        "timestamp": asyncio.get_event_loop().time()
+        "type": "workflow_start", 
+        "payload": f"启动 {entry_point} 工作流，主智能体开始协调", 
+        "title": "智能体协调启动"
     })
-    dsl.add_to_history("工作流启动确认", ack_message)
 
-    # Define agent configurations with actual agent instances
-    agent_configs = {
+    # 使用主智能体协调所有任务
+    main_task_execution = dsl.gen(
+        name=f"{entry_point}_coordination",
+        prompt=f"协调 {entry_point} 任务，分析任务数据并制定执行策略",
+        agent=city_manager_agent
+    ).schedule()
+    
+    join_results = await asyncio.to_thread(dsl.join, [main_task_execution])
+    main_result = join_results.get(main_task_execution.name)
+    main_result_str = str(main_result.get("result", main_result) if isinstance(main_result, dict) else main_result)
+
+    # 发送主智能体的协调结果 - 合并到工作流启动中
+    # await broadcast_message_task(dsl, {
+    #     "type": "main_task_result",
+    #     "payload": {
+    #         "agent": "城市管理主智能体",
+    #         "result": main_result_str,
+    #         "task": entry_point
+    #     },
+    #     "title": "主智能体协调完成"
+    # })
+
+    # 定义智能的子智能体配置 - 根据任务类型选择相关智能体
+    sub_agent_configs = {
         "autonomous_driving_task": {
-            "agent": traffic_manager_agent, 
-            "title": "自动驾驶系统", 
-            "base_prompt": "分析当前自动驾驶状态并制定优化策略"
+            "primary_agent": {"agent": traffic_manager_agent, "title": "交通管理子智能体", "method": "analyze_autonomous_driving_request"},
+            "related_agents": [
+                {"agent": weather_agent, "title": "天气监测子智能体", "method": "respond_to_autonomous_driving", "condition": "weather_condition"}
+            ]
         },
         "weather_alert_task": {
-            "agent": weather_agent, 
-            "title": "天气监测系统", 
-            "base_prompt": "基于当前天气条件评估城市安全风险"
+            "primary_agent": {"agent": weather_agent, "title": "天气监测子智能体", "method": "trigger_weather_alert"},
+            "related_agents": [
+                {"agent": traffic_manager_agent, "title": "交通管理子智能体", "method": "respond_to_weather_alert", "condition": "traffic_impact"},
+                {"agent": safety_agent, "title": "安全监测子智能体", "method": "respond_to_weather_alert", "condition": "safety_risk"}
+            ]
         },
         "parking_update_task": {
-            "agent": parking_agent, 
-            "title": "停车管理系统", 
-            "base_prompt": "分析停车状况并优化交通流量"
+            "primary_agent": {"agent": parking_agent, "title": "停车管理子智能体", "method": "update_parking_status"},
+            "related_agents": [
+                {"agent": traffic_manager_agent, "title": "交通管理子智能体", "method": "respond_to_parking_update", "condition": "traffic_impact"}
+            ]
         },
         "safety_inspection_task": {
-            "agent": safety_agent, 
-            "title": "安全检查系统", 
-            "base_prompt": "执行安全检查并评估潜在风险"
+            "primary_agent": {"agent": safety_agent, "title": "安全监测子智能体", "method": "monitor_safety"},
+            "related_agents": [
+                {"agent": traffic_manager_agent, "title": "交通管理子智能体", "method": "respond_to_safety_inspection", "condition": "traffic_impact"}
+            ]
         },
     }
 
-    if entry_point not in agent_configs:
+    if entry_point not in sub_agent_configs:
         error_message = f"无效的入口任务: {entry_point}"
         await broadcast_message_task(dsl, {"type": "error", "payload": error_message, "title": "错误"})
         print(error_message)
         return
 
-    # Execute the initial task
-    start_task_config = agent_configs[entry_point]
-    prompt_details = ", ".join([f"{key.replace('_', ' ')}: {value}" for key, value in task_data.items() if key != 'entry_point'])
-    initial_prompt = f"初始任务: {start_task_config['title']}，详细信息: {prompt_details}。{start_task_config['base_prompt']}"
-
-    initial_task_execution = dsl.gen(
-        name=f"{entry_point}_execution",
-        prompt=initial_prompt,
-        agent=start_task_config["agent"]
-    ).schedule()
+    # 获取子智能体配置
+    sub_agents_config = sub_agent_configs[entry_point]
     
+    # 智能选择需要响应的智能体
+    selected_agents = []
+    
+    # 总是包含主要智能体
+    selected_agents.append(sub_agents_config["primary_agent"])
+    
+    # 根据条件选择相关智能体
+    for related_agent in sub_agents_config["related_agents"]:
+        condition = related_agent.get("condition", "")
+        should_include = False
+        
+        if condition == "weather_condition":
+            # 如果有天气条件，包含天气智能体
+            weather_condition = task_data.get('weather_condition', '')
+            should_include = bool(weather_condition and weather_condition.strip())
+        elif condition == "traffic_impact":
+            # 如果任务可能影响交通，包含交通智能体
+            should_include = True  # 大部分任务都会影响交通
+        elif condition == "safety_risk":
+            # 如果任务涉及安全风险，包含安全智能体
+            should_include = True  # 大部分任务都涉及安全
+        
+        if should_include:
+            selected_agents.append(related_agent)
+    
+    # 发送协调开始消息
     await broadcast_message_task(dsl, {
-        "type": "agent_message",
-        "payload": f"正在执行初始任务: {start_task_config['title']}",
-        "title": start_task_config['title'],
-        "timestamp": asyncio.get_event_loop().time()
+        "type": "coordination_start",
+        "payload": f"触发 {len(selected_agents)} 个相关智能体协同响应",
+        "title": "子智能体协调"
     })
-    
-    join_results = await asyncio.to_thread(dsl.join, [initial_task_execution])
 
-    initial_result = join_results.get(initial_task_execution.name)
-    initial_result_str = str(initial_result.get("result", initial_result) if isinstance(initial_result, dict) else initial_result)
+    # 执行子智能体任务
+    sub_agent_tasks = []
+    for agent_config in selected_agents:
+        agent_instance = agent_config['agent']
+        agent_title = agent_config['title']
+        method_name = agent_config['method']
+        
+        # 为智能体准备增强的任务数据，包含上下文信息
+        enhanced_task_data = {
+            **task_data,  # 原始任务数据
+            'trigger_event': entry_point,  # 触发事件类型
+            'trigger_time': datetime.now().isoformat(),  # 触发时间
+            'context': {
+                'weather_condition': task_data.get('alert_type', '') if entry_point == 'weather_alert_task' else '',
+                'location': task_data.get('area', task_data.get('location', '')),
+                'severity': task_data.get('severity', 5),
+                'original_task': entry_point
+            }
+        }
+        
+        # 直接调用智能体方法并传递增强的任务数据
+        try:
+            if hasattr(agent_instance, method_name):
+                method = getattr(agent_instance, method_name)
+                # 检查方法是否为异步方法
+                if asyncio.iscoroutinefunction(method):
+                    result = await method(enhanced_task_data)
+                else:
+                    result = method(enhanced_task_data)
+                sub_agent_tasks.append((agent_title, result))
+            else:
+                # 如果方法不存在，使用默认的DSL任务
+                task = dsl.gen(
+                    name=f"{entry_point}_{agent_title.replace('子智能体', '').replace(' ', '_')}",
+                    prompt=f"执行 {method_name} 方法，处理 {entry_point} 任务数据: {enhanced_task_data}",
+                    agent=agent_instance
+                ).schedule()
+                sub_agent_tasks.append((agent_title, task))
+        except Exception as e:
+            error_result = f"智能体 {agent_title} 执行出错: {str(e)}"
+            sub_agent_tasks.append((agent_title, error_result))
 
-    await broadcast_message_task(dsl, {
-        "type": "agent_response",
-        "payload": {
-            "agent": start_task_config['title'],
-            "result": initial_result_str,
-            "task": entry_point
-        },
-        "title": f"{start_task_config['title']} 执行完成",
-        "timestamp": asyncio.get_event_loop().time()
-    })
-    dsl.add_to_history(f"{start_task_config['title']} 执行结果", initial_result_str)
+    # 只对DSL任务进行join操作
+    dsl_tasks = [task for _, task in sub_agent_tasks if not isinstance(task, str)]
+    if dsl_tasks:
+        join_results = await asyncio.to_thread(dsl.join, dsl_tasks, mode="all")
+    else:
+        join_results = {}
 
-    # Trigger other agents to react with more intelligent interactions
-    other_tasks = [task for task in agent_configs if task != entry_point]
-    reaction_tasks = []
-    
-    for other_task_name in other_tasks:
-        other_task_config = agent_configs[other_task_name]
-        
-        # Create more intelligent reaction prompts based on the initial task
-        if entry_point == "autonomous_driving_task":
-            if other_task_name == "weather_alert_task":
-                reaction_prompt = f"基于自动驾驶任务的结果 ({initial_result_str})，评估天气条件对自动驾驶安全的影响，并提供天气预警建议。"
-            elif other_task_name == "parking_update_task":
-                reaction_prompt = f"基于自动驾驶任务的结果 ({initial_result_str})，分析停车状况对自动驾驶路线规划的影响，并优化停车资源分配。"
-            elif other_task_name == "safety_inspection_task":
-                reaction_prompt = f"基于自动驾驶任务的结果 ({initial_result_str})，执行安全检查，确保自动驾驶环境的安全性。"
-        
-        elif entry_point == "weather_alert_task":
-            if other_task_name == "autonomous_driving_task":
-                reaction_prompt = f"基于天气预警的结果 ({initial_result_str})，调整自动驾驶策略以适应恶劣天气条件。"
-            elif other_task_name == "parking_update_task":
-                reaction_prompt = f"基于天气预警的结果 ({initial_result_str})，调整停车管理策略，考虑天气对停车的影响。"
-            elif other_task_name == "safety_inspection_task":
-                reaction_prompt = f"基于天气预警的结果 ({initial_result_str})，加强安全检查，确保恶劣天气下的城市安全。"
-        
-        elif entry_point == "parking_update_task":
-            if other_task_name == "autonomous_driving_task":
-                reaction_prompt = f"基于停车更新的结果 ({initial_result_str})，优化自动驾驶路线，避开拥堵区域。"
-            elif other_task_name == "weather_alert_task":
-                reaction_prompt = f"基于停车更新的结果 ({initial_result_str})，评估停车状况变化对天气应对策略的影响。"
-            elif other_task_name == "safety_inspection_task":
-                reaction_prompt = f"基于停车更新的结果 ({initial_result_str})，检查停车区域的安全状况。"
-        
-        elif entry_point == "safety_inspection_task":
-            if other_task_name == "autonomous_driving_task":
-                reaction_prompt = f"基于安全检查的结果 ({initial_result_str})，调整自动驾驶策略以确保安全。"
-            elif other_task_name == "weather_alert_task":
-                reaction_prompt = f"基于安全检查的结果 ({initial_result_str})，评估安全风险对天气应对的影响。"
-            elif other_task_name == "parking_update_task":
-                reaction_prompt = f"基于安全检查的结果 ({initial_result_str})，调整停车管理策略以确保安全。"
-        
+    # 收集所有子智能体响应结果
+    responses = []
+    for title, result in sub_agent_tasks:
+        if isinstance(result, str):
+            # 直接的方法调用结果
+            result_str = result
         else:
-            reaction_prompt = f"基于 '{start_task_config['title']}' 任务的结果 ({initial_result_str})，{other_task_config['base_prompt']}"
+            # DSL任务结果
+            result_str = str(result.get("result", result) if isinstance(result, dict) else result)
         
-        reaction_task = dsl.gen(
-            name=f"{other_task_name}_reaction",
-            prompt=reaction_prompt,
-            agent=other_task_config["agent"]
-        ).schedule()
-        reaction_tasks.append((other_task_config['title'], reaction_task))
-
-    await broadcast_message_task(dsl, {
-        "type": "agent_message",
-        "payload": f"正在触发其他智能体响应，共 {len(reaction_tasks)} 个智能体将参与交互...",
-        "title": "智能体协调器",
-        "timestamp": asyncio.get_event_loop().time()
-    })
-
-    join_results = await asyncio.to_thread(dsl.join, [task for _, task in reaction_tasks], mode="all")
-
-    for title, task in reaction_tasks:
-        result = join_results.get(task.name)
-        result_str = str(result.get("result", result) if isinstance(result, dict) else result)
-        await broadcast_message_task(dsl, {
-            "type": "agent_response",
-            "payload": {
-                "agent": title,
-                "result": result_str,
-                "triggered_by": start_task_config['title']
-            },
-            "title": f"{title} 响应完成",
-            "timestamp": asyncio.get_event_loop().time()
+        responses.append({
+            "agent": title,
+            "result": result_str[:200] + "..." if len(result_str) > 200 else result_str  # 增加显示长度
         })
-        dsl.add_to_history(f"{title} 响应结果", result_str)
 
-    # Final coordination message
-    final_message = f"智能城市模拟工作流完成！{start_task_config['title']} 触发了 {len(reaction_tasks)} 个智能体的响应，所有交互已完成。"
+    # 发送汇总的响应结果
     await broadcast_message_task(dsl, {
-        "type": "agent_message",
-        "payload": final_message,
-        "title": "城市管理器",
-        "timestamp": asyncio.get_event_loop().time()
+        "type": "coordination_result",
+        "payload": {
+            "triggered_by": "城市管理主智能体",
+            "responses": responses,
+            "total_agents": len(responses)
+        },
+        "title": "子智能体协同完成"
     })
-    dsl.add_to_history("工作流完成", final_message)
+
+    # 简化的完成消息
+    await broadcast_message_task(dsl, {
+        "type": "workflow_complete",
+        "payload": f"工作流完成，主智能体成功协调了 {len(responses)} 个子智能体",
+        "title": "系统完成"
+    })
 
 
 async def generate_report_workflow(dsl: DSL, events_data: list = None):
