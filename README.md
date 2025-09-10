@@ -36,6 +36,8 @@ Multi-Agent DSL Framework is an innovative multi-agent domain-specific language 
 
 ## 🏗️ 系统架构 / System Architecture
 
+### 架构概览 / Architecture Overview
+
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Event Sources │    │  Multi-Agent    │    │   Runtime       │
@@ -49,6 +51,17 @@ Multi-Agent DSL Framework is an innovative multi-agent domain-specific language 
                         │ • blackboard    │
                         └─────────────────┘
 ```
+
+### 详细架构图 / Detailed Architecture Diagrams
+
+#### 系统架构概览 / System Architecture Overview
+![System Architecture Overview](graph1.drawio.png)
+
+#### 组件交互图 / Component Interaction Diagram  
+![Component Interaction Diagram](graph2.drawio.png)
+
+#### 数据流图 / Data Flow Diagram
+![Data Flow Diagram](graph3.drawio.png)
 
 ## 🚀 快速开始 / Quick Start
 
