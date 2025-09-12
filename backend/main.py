@@ -5,10 +5,10 @@ import os
 
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from backend.dependencies import get_dsl_instance
-from backend.dsl_workflows import smart_city_simulation_workflow, generate_report_workflow
-from backend.socket_app import sio, start_cleanup_task
-from backend.api_routes import router
+from dependencies import get_dsl_instance
+from dsl_workflows import smart_city_simulation_workflow, generate_report_workflow
+from socket_app import sio, start_cleanup_task
+from api_routes import router
 import socketio
 
 app = FastAPI()
@@ -22,6 +22,11 @@ app.add_middleware(
 
 # 包含API路由
 app.include_router(router)
+
+# 添加健康检查端点
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "message": "Multi-Agent DSL Framework is running"}
 
 dsl = get_dsl_instance()
 

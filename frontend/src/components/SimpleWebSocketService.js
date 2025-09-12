@@ -10,6 +10,14 @@ class SimpleWebSocketService {
     this.onMessageCallback = null;
     this.onErrorCallback = null;
     this.userId = this.generateUserId();
+    this.lastError = null;
+    this.connectionStats = {
+      totalConnections: 0,
+      successfulConnections: 0,
+      failedConnections: 0,
+      lastConnectionTime: null,
+      lastError: null
+    };
   }
 
   generateUserId() {
@@ -35,22 +43,31 @@ class SimpleWebSocketService {
     }
     
     try {
-      // 添加用户ID到连接参数
-      const connectionUrl = `${url}?user_id=${this.userId}`;
+      // 确保URL格式正确
+      const baseUrl = url.replace(/\/$/, ''); // 移除末尾斜杠
+      const connectionUrl = `${baseUrl}?user_id=${this.userId}`;
       
-      // 使用Socket.IO连接
+      // 使用Socket.IO连接，增加更多配置选项
       this.socket = io(connectionUrl, {
         transports: ['websocket', 'polling'],
-        timeout: 20000,
+        timeout: 30000,
         forceNew: true,
         reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000
+        reconnectionAttempts: 10,
+        reconnectionDelay: 2000,
+        reconnectionDelayMax: 10000,
+        maxReconnectionAttempts: 10,
+        autoConnect: true,
+        upgrade: true,
+        rememberUpgrade: true
       });
 
       this.socket.on('connect', () => {
         console.log('✅ WebSocket连接成功');
         this.isConnected = true;
+        this.lastError = null;
+        this.connectionStats.successfulConnections++;
+        this.connectionStats.lastConnectionTime = new Date().toISOString();
         if (this.onConnectCallback) {
           this.onConnectCallback();
         }
@@ -67,6 +84,9 @@ class SimpleWebSocketService {
       this.socket.on('connect_error', (error) => {
         console.error('❌ WebSocket连接错误:', error);
         this.isConnected = false;
+        this.lastError = error;
+        this.connectionStats.failedConnections++;
+        this.connectionStats.lastError = error.message || error.toString();
         if (this.onErrorCallback) {
           this.onErrorCallback(error);
         }
@@ -185,10 +205,40 @@ class SimpleWebSocketService {
 
   getConnectionStats() {
     return {
+      ...this.connectionStats,
       connected: this.isConnected,
       userId: this.userId,
-      socketId: this.socket?.id || null
+      socketId: this.socket?.id || null,
+      lastError: this.lastError
     };
+  }
+
+  getConnectionStatus() {
+    if (!this.socket) {
+      return { status: 'disconnected', message: '未初始化连接' };
+    }
+    
+    if (this.isConnected) {
+      return { status: 'connected', message: '连接正常' };
+    }
+    
+    if (this.lastError) {
+      return { 
+        status: 'error', 
+        message: `连接错误: ${this.lastError.message || this.lastError}` 
+      };
+    }
+    
+    return { status: 'connecting', message: '正在连接...' };
+  }
+
+  // 添加手动重连方法
+  reconnect() {
+    if (this.socket) {
+      console.log('🔄 手动重连WebSocket');
+      this.socket.disconnect();
+      this.socket.connect();
+    }
   }
 }
 

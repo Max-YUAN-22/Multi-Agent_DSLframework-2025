@@ -1,44 +1,46 @@
 #!/usr/bin/env node
 
-const WebSocket = require('ws');
+// WebSocket连接测试脚本
+const io = require('socket.io-client');
 
-console.log('🔍 测试WebSocket连接...');
+console.log('🔌 测试WebSocket连接...');
 
-// 测试后端WebSocket连接
-const ws = new WebSocket('ws://localhost:8008/socket.io/?EIO=3&transport=websocket');
+const socket = io('http://localhost:8008', {
+  transports: ['websocket', 'polling'],
+  timeout: 10000,
+  forceNew: true
+});
 
-ws.on('open', function open() {
-  console.log('✅ WebSocket连接成功！');
+socket.on('connect', () => {
+  console.log('✅ WebSocket连接成功!');
+  console.log('📡 Socket ID:', socket.id);
   
   // 发送测试消息
-  const testMessage = {
-    type: 'smart_city_simulation',
-    data: {
-      entry_point: 'autonomous_driving_task',
-      start_location: 'A',
-      end_location: 'B',
-      passengers: 2
-    }
-  };
-  
-  console.log('📤 发送测试消息:', testMessage);
-  ws.send(JSON.stringify(testMessage));
+  socket.emit('message', {
+    type: 'test',
+    data: { message: 'Hello from test script' }
+  });
 });
 
-ws.on('message', function message(data) {
-  console.log('📥 收到消息:', data.toString());
+socket.on('connection_successful', (data) => {
+  console.log('🎉 收到连接确认:', data);
 });
 
-ws.on('error', function error(err) {
-  console.log('❌ WebSocket错误:', err.message);
+socket.on('disconnect', (reason) => {
+  console.log('❌ WebSocket断开连接:', reason);
 });
 
-ws.on('close', function close() {
-  console.log('🔌 WebSocket连接关闭');
+socket.on('connect_error', (error) => {
+  console.log('❌ WebSocket连接错误:', error.message);
+});
+
+socket.on('message', (data) => {
+  console.log('📨 收到消息:', data);
 });
 
 // 5秒后关闭连接
 setTimeout(() => {
-  ws.close();
-  console.log('🏁 测试完成');
+  console.log('🔄 关闭测试连接');
+  socket.disconnect();
+  process.exit(0);
 }, 5000);

@@ -1,16 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Grid, Paper } from '@mui/material';
+import PageHeader from '../components/PageHeader';
+import AgentArchitecture from '../components/AgentArchitecture';
 import AutonomousDrivingCard from '../components/AutonomousDrivingCard';
 import WeatherAlertCard from '../components/WeatherAlertCard';
 import ParkingUpdateCard from '../components/ParkingUpdateCard';
 import SafetyInspectionCard from '../components/SafetyInspectionCard';
 import InteractionHistory from '../components/InteractionHistory';
+import ReportSidebar from '../components/ReportSidebar';
 import SimpleWebSocketService from '../components/SimpleWebSocketService';
 
 const HomePage = () => {
   const [messages, setMessages] = useState([]);
   const [readyState, setReadyState] = useState(0); // 0 = connecting, 1 = open, 2 = closing, 3 = closed
   const [connectionStats, setConnectionStats] = useState(null);
+  const [isReportSidebarOpen, setIsReportSidebarOpen] = useState(false);
+  const [showReportsOnly, setShowReportsOnly] = useState(false);
+  const [connectionError, setConnectionError] = useState(null);
+  const [isRetrying, setIsRetrying] = useState(false);
 
   useEffect(() => {
     const wsUrl = `http://localhost:8008`;
@@ -19,6 +25,8 @@ const HomePage = () => {
 
     const handleConnect = () => {
       setReadyState(1); // WebSocket.OPEN
+      setConnectionError(null);
+      setIsRetrying(false);
       console.log('✅ WebSocket connected, readyState set to 1');
       // 更新连接统计信息
       setConnectionStats(SimpleWebSocketService.getConnectionStats());
@@ -38,6 +46,12 @@ const HomePage = () => {
           timestamp: message.timestamp || new Date().toISOString()
         };
         console.log('📝 Adding message to state:', messageWithTimestamp);
+        
+        // 特别关注报告消息
+        if (messageWithTimestamp.type === 'analysis_report') {
+          console.log('📊 Report message received:', messageWithTimestamp);
+        }
+        
         setMessages((prevMessages) => [...prevMessages, messageWithTimestamp]);
       } catch (error) {
         console.error('❌ Error parsing WebSocket message:', error);
@@ -52,6 +66,8 @@ const HomePage = () => {
     const handleError = (error) => {
       console.error('❌ WebSocket error:', error);
       setReadyState(3); // WebSocket.CLOSED
+      setConnectionError(error.message || '连接失败');
+      setIsRetrying(false);
     };
 
     SimpleWebSocketService.on('connect', handleConnect);
@@ -164,56 +180,87 @@ const HomePage = () => {
     setMessages([]);
   };
 
+  // 手动重连功能
+  const handleRetryConnection = () => {
+    setIsRetrying(true);
+    setConnectionError(null);
+    console.log('🔄 手动重连WebSocket');
+    SimpleWebSocketService.reconnect();
+    
+    // 5秒后如果还在重试状态，显示错误
+    setTimeout(() => {
+      if (isRetrying) {
+        setIsRetrying(false);
+        setConnectionError('重连超时，请检查服务器状态');
+      }
+    }, 5000);
+  };
+
+  // 报告侧边栏控制函数
+  const openReportSidebar = () => {
+    setIsReportSidebarOpen(true);
+  };
+
+  const closeReportSidebar = () => {
+    setIsReportSidebarOpen(false);
+  };
+
+  // 切换报告显示模式
+  const toggleReportsOnly = () => {
+    setShowReportsOnly(!showReportsOnly);
+  };
+
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Grid container spacing={3}>
-        <Grid size={12}>
-          <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-            <div style={{ marginBottom: '10px', fontSize: '14px', color: '#666' }}>
-              Connection Status: {readyState === 1 ? '✅ Connected' : readyState === 0 ? '🔄 Connecting' : '❌ Disconnected'} | 
-              Messages: {messages.length} | 
-              Backend: http://localhost:8008
-              {connectionStats && (
-                <span style={{ marginLeft: '20px' }}>
-                  | User ID: {connectionStats.userId} | 
-                  Active Connections: {connectionStats.activeConnections}/{connectionStats.totalConnections}
-                </span>
-              )}
-            </div>
-            <InteractionHistory 
-              events={messages} 
+    <div className="homepage">
+      <PageHeader />
+      
+      <div className="container">
+        <AgentArchitecture />
+        
+        <div className="event-cards-section">
+          <div className="grid grid-2">
+            <AutonomousDrivingCard 
+              onSend={(data) => handleSend('autonomous_driving_task', data)} 
               readyState={readyState} 
-              onGenerateReport={sendGenerateReport} 
-              onClear={clearHistory} 
             />
-          </Paper>
-        </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <AutonomousDrivingCard 
-            onSend={(data) => handleSend('autonomous_driving_task', data)} 
-            readyState={readyState} 
-          />
-        </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <WeatherAlertCard 
-            onSend={(data) => handleSend('weather_alert_task', data)} 
-            readyState={readyState} 
-          />
-        </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <ParkingUpdateCard 
-            onSend={(data) => handleSend('parking_update_task', data)} 
-            readyState={readyState} 
-          />
-        </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <SafetyInspectionCard 
-            onSend={(data) => handleSend('safety_inspection_task', data)} 
-            readyState={readyState} 
-          />
-        </Grid>
-      </Grid>
-    </Container>
+            <WeatherAlertCard 
+              onSend={(data) => handleSend('weather_alert_task', data)} 
+              readyState={readyState} 
+            />
+            <ParkingUpdateCard 
+              onSend={(data) => handleSend('parking_update_task', data)} 
+              readyState={readyState} 
+            />
+            <SafetyInspectionCard 
+              onSend={(data) => handleSend('safety_inspection_task', data)} 
+              readyState={readyState} 
+            />
+          </div>
+        </div>
+        
+        <InteractionHistory 
+          events={messages} 
+          readyState={readyState} 
+          connectionStats={connectionStats}
+          connectionError={connectionError}
+          isRetrying={isRetrying}
+          onGenerateReport={sendGenerateReport} 
+          onClear={clearHistory}
+          onOpenReportSidebar={openReportSidebar}
+          onRetryConnection={handleRetryConnection}
+          showReportsOnly={showReportsOnly}
+          onToggleReportsOnly={toggleReportsOnly}
+        />
+      </div>
+      
+      {/* 报告侧边栏 */}
+      <ReportSidebar 
+        events={messages}
+        isOpen={isReportSidebarOpen}
+        onClose={closeReportSidebar}
+        onGenerateReport={sendGenerateReport}
+      />
+    </div>
   );
 };
 

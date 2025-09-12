@@ -1,5 +1,6 @@
 import React from 'react';
 import { EventProvider } from './contexts/EventContext';
+import { LanguageProvider } from './hooks/useTranslation';
 import MainLayout from './layouts/MainLayout';
 import HomePage from './pages/HomePage';
 import './App.css';
@@ -16,11 +17,13 @@ function App() {
         height: '100vh'
       }}
     >
-      <EventProvider>
-        <MainLayout>
+      <LanguageProvider>
+        <EventProvider>
+          <MainLayout>
           <HomePage />
         </MainLayout>
       </EventProvider>
+      </LanguageProvider>
     </div>
   );
 }

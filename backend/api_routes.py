@@ -3,7 +3,7 @@ import asyncio
 import json
 from datetime import datetime
 from fastapi import APIRouter, Depends, BackgroundTasks
-from backend.data_models import (
+from data_models import (
     AutonomousDrivingEvent,
     TrafficData,
     WeatherAlert,
@@ -13,7 +13,7 @@ from backend.data_models import (
     GenerateReportRequest,
     TrafficIncident,
 )
-from backend.dsl_workflows import (
+from dsl_workflows import (
     fire_alert_workflow_task,
     master_workflow_chain_task,
     traffic_incident_workflow_task,
@@ -28,7 +28,7 @@ from agents.weather_agent import WeatherAgent
 from agents.parking_agent import ParkingAgent
 from agents.safety_agent import SafetyAgent
 from agents.traffic_incident_agent import TrafficIncidentAgent
-from backend.dependencies import (
+from dependencies import (
     get_dsl_instance,
     get_traffic_monitor_agent,
     get_weather_agent,
@@ -36,7 +36,7 @@ from backend.dependencies import (
     get_safety_agent,
     get_traffic_incident_agent,
 )
-from backend.socket_app import sio
+from socket_app import sio
 
 router = APIRouter()
 
@@ -49,14 +49,7 @@ def health():
 @router.post("/events/autonomous_driving")
 async def autonomous_driving(evt: AutonomousDrivingEvent, dsl: DSL = Depends(get_dsl_instance)):
     payload = evt.dict()
-    message = {
-        "type": "autonomous_driving",
-        "payload": payload,
-        "title": "Autonomous Driving Event",
-        "timestamp": datetime.now().isoformat()
-    }
-    print(f"Broadcasting event: {message}")
-    await sio.emit('broadcast', message, room='default_room')
+    print(f"Processing autonomous driving event: {payload}")
     asyncio.create_task(smart_city_simulation_workflow(dsl, "autonomous_driving_task", payload))
     return {"status": "received"}
 
@@ -84,14 +77,7 @@ async def weather_alert(alert: WeatherAlert, weather_agent: WeatherAgent = Depen
         alert_data['area'] = alert_data['location']
     
     weather_agent.trigger_weather_alert(alert_data)
-    message = {
-        "type": "weather_alert",
-        "payload": alert_data,
-        "title": "Weather Alert",
-        "timestamp": datetime.now().isoformat()
-    }
-    print(f"Broadcasting event: {message}")
-    await sio.emit('broadcast', message, room='default_room')
+    print(f"Processing weather alert event: {alert_data}")
     asyncio.create_task(smart_city_simulation_workflow(dsl, "weather_alert_task", alert_data))
     return {"status": "alert triggered"}
 
@@ -99,14 +85,7 @@ async def weather_alert(alert: WeatherAlert, weather_agent: WeatherAgent = Depen
 @router.post("/events/parking_update")
 async def parking_update(data: ParkingData, parking_agent: ParkingAgent = Depends(get_parking_agent), dsl: DSL = Depends(get_dsl_instance)):
     parking_agent.update_parking_status(data.dict())
-    message = {
-        "type": "parking_update",
-        "payload": data.dict(),
-        "title": "Parking Update",
-        "timestamp": datetime.now().isoformat()
-    }
-    print(f"Broadcasting event: {message}")
-    await sio.emit('broadcast', message, room='default_room')
+    print(f"Processing parking update event: {data.dict()}")
     asyncio.create_task(smart_city_simulation_workflow(dsl, "parking_update_task", data.dict()))
     return {"status": "updated"}
 
@@ -119,14 +98,7 @@ async def safety_inspection(data: SafetyData, safety_agent: SafetyAgent = Depend
         safety_data['safety_status'] = 'warning' if safety_data['require_human_intervention'] else 'ok'
     
     safety_agent.monitor_safety(safety_data)
-    message = {
-        "type": "safety_inspection",
-        "payload": safety_data,
-        "title": "Safety Inspection",
-        "timestamp": datetime.now().isoformat()
-    }
-    print(f"Broadcasting event: {message}")
-    await sio.emit('broadcast', message, room='default_room')
+    print(f"Processing safety inspection event: {safety_data}")
     asyncio.create_task(smart_city_simulation_workflow(dsl, "safety_inspection_task", safety_data))
     return {"status": "monitoring"}
 

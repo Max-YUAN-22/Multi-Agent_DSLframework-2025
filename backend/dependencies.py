@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from core.llm import llm_callable
 from dsl.dsl import DSL
 from agents.traffic_manager_agent import TrafficManagerAgent
@@ -13,7 +16,8 @@ from agents.weather_agent import WeatherAgent
 from agents.sanitation_agent import SanitationAgent
 from agents.parking_agent import ParkingAgent
 from agents.safety_agent import SafetyAgent
-from backend.websocket_manager import manager as websocket_manager
+from agents.city_manager_agent import CityManagerAgent
+from websocket_manager import manager as websocket_manager
 
 # 创建DSL实例并配置LLM
 dsl_instance = DSL(workers=8)
@@ -32,6 +36,7 @@ weather_agent = WeatherAgent(dsl_instance=dsl_instance)
 sanitation_agent = SanitationAgent(dsl_instance=dsl_instance)
 parking_agent = ParkingAgent(dsl_instance=dsl_instance)
 safety_agent = SafetyAgent(dsl_instance=dsl_instance)
+city_manager_agent = CityManagerAgent(dsl_instance=dsl_instance)
 
 def get_dsl_instance():
     return dsl_instance
@@ -74,6 +79,9 @@ def get_parking_agent():
 
 def get_safety_agent():
     return safety_agent
+
+def get_city_manager_agent():
+    return city_manager_agent
 
 def get_websocket_manager():
     return websocket_manager

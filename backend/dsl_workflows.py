@@ -2,14 +2,14 @@ import asyncio
 import json
 from datetime import datetime
 from typing import Dict, Any
-from backend.dependencies import get_dsl_instance, get_websocket_manager
+from dependencies import get_dsl_instance, get_websocket_manager
 from dsl.dsl import DSL
 
 dsl = get_dsl_instance()
 
 async def broadcast_message_task(dsl: DSL, message: Any):
     """Broadcasts a message to all connected Socket.IO clients."""
-    from backend.socket_app import sio
+    from socket_app import sio
     from datetime import datetime
     try:
         if isinstance(message, str):
@@ -168,7 +168,7 @@ async def smart_city_simulation_workflow(dsl: DSL, entry_point: str, task_data: 
     print(f"Starting smart city simulation workflow with entry_point: {entry_point}")
     
     # 导入主智能体和子智能体实例
-    from backend.dependencies import (
+    from dependencies import (
         city_manager_agent, traffic_manager_agent, weather_agent, parking_agent, safety_agent
     )
     
@@ -188,7 +188,7 @@ async def smart_city_simulation_workflow(dsl: DSL, entry_point: str, task_data: 
     #     "title": f"{initial_event_type.replace('_', ' ').title()} Event"
     # })
     
-    # 简化的启动消息 - 合并工作流启动和主智能体协调
+    # 发送工作流启动消息
     await broadcast_message_task(dsl, {
         "type": "workflow_start", 
         "payload": f"启动 {entry_point} 工作流，主智能体开始协调", 
@@ -206,16 +206,17 @@ async def smart_city_simulation_workflow(dsl: DSL, entry_point: str, task_data: 
     main_result = join_results.get(main_task_execution.name)
     main_result_str = str(main_result.get("result", main_result) if isinstance(main_result, dict) else main_result)
 
-    # 发送主智能体的协调结果 - 合并到工作流启动中
-    # await broadcast_message_task(dsl, {
-    #     "type": "main_task_result",
-    #     "payload": {
-    #         "agent": "城市管理主智能体",
-    #         "result": main_result_str,
-    #         "task": entry_point
-    #     },
-    #     "title": "主智能体协调完成"
-    # })
+    # 发送主智能体的协调结果
+    await broadcast_message_task(dsl, {
+        "type": "main_coordination",
+        "payload": {
+            "agent": "城市管理主智能体",
+            "result": main_result_str,
+            "task": entry_point,
+            "step": "1/4"
+        },
+        "title": "主智能体协调完成"
+    })
 
     # 定义智能的子智能体配置 - 根据任务类型选择相关智能体
     sub_agent_configs = {
@@ -264,7 +265,7 @@ async def smart_city_simulation_workflow(dsl: DSL, entry_point: str, task_data: 
     # 根据条件选择相关智能体
     for related_agent in sub_agents_config["related_agents"]:
         condition = related_agent.get("condition", "")
-        should_include = False
+        should_include = True  # 默认包含所有相关智能体
         
         if condition == "weather_condition":
             # 如果有天气条件，包含天气智能体
@@ -280,16 +281,17 @@ async def smart_city_simulation_workflow(dsl: DSL, entry_point: str, task_data: 
         if should_include:
             selected_agents.append(related_agent)
     
-    # 发送协调开始消息
+    # 发送子智能体协调开始消息
     await broadcast_message_task(dsl, {
-        "type": "coordination_start",
-        "payload": f"触发 {len(selected_agents)} 个相关智能体协同响应",
-        "title": "子智能体协调"
+        "type": "sub_agent_coordination",
+        "payload": f"主智能体分发任务给 {len(selected_agents)} 个子智能体",
+        "title": "子智能体协调开始",
+        "step": "2/4"
     })
 
-    # 执行子智能体任务
+    # 执行子智能体任务 - 分步执行
     sub_agent_tasks = []
-    for agent_config in selected_agents:
+    for i, agent_config in enumerate(selected_agents):
         agent_instance = agent_config['agent']
         agent_title = agent_config['title']
         method_name = agent_config['method']
@@ -307,6 +309,17 @@ async def smart_city_simulation_workflow(dsl: DSL, entry_point: str, task_data: 
             }
         }
         
+        # 发送子智能体开始处理消息
+        await broadcast_message_task(dsl, {
+            "type": "sub_agent_processing",
+            "payload": {
+                "agent": agent_title,
+                "method": method_name,
+                "step": f"2.{i+1}/4"
+            },
+            "title": f"{agent_title} 开始处理"
+        })
+        
         # 直接调用智能体方法并传递增强的任务数据
         try:
             if hasattr(agent_instance, method_name):
@@ -317,6 +330,17 @@ async def smart_city_simulation_workflow(dsl: DSL, entry_point: str, task_data: 
                 else:
                     result = method(enhanced_task_data)
                 sub_agent_tasks.append((agent_title, result))
+                
+                # 发送子智能体处理完成消息
+                await broadcast_message_task(dsl, {
+                    "type": "sub_agent_completed",
+                    "payload": {
+                        "agent": agent_title,
+                        "result": str(result)[:100] + "..." if len(str(result)) > 100 else str(result),
+                        "step": f"2.{i+1}/4"
+                    },
+                    "title": f"{agent_title} 处理完成"
+                })
             else:
                 # 如果方法不存在，使用默认的DSL任务
                 task = dsl.gen(
@@ -328,6 +352,17 @@ async def smart_city_simulation_workflow(dsl: DSL, entry_point: str, task_data: 
         except Exception as e:
             error_result = f"智能体 {agent_title} 执行出错: {str(e)}"
             sub_agent_tasks.append((agent_title, error_result))
+            
+            # 发送错误消息
+            await broadcast_message_task(dsl, {
+                "type": "sub_agent_error",
+                "payload": {
+                    "agent": agent_title,
+                    "error": str(e),
+                    "step": f"2.{i+1}/4"
+                },
+                "title": f"{agent_title} 处理出错"
+            })
 
     # 只对DSL任务进行join操作
     dsl_tasks = [task for _, task in sub_agent_tasks if not isinstance(task, str)]
@@ -351,22 +386,30 @@ async def smart_city_simulation_workflow(dsl: DSL, entry_point: str, task_data: 
             "result": result_str[:200] + "..." if len(result_str) > 200 else result_str  # 增加显示长度
         })
 
-    # 发送汇总的响应结果
+    # 发送结果汇总消息
+    await broadcast_message_task(dsl, {
+        "type": "result_summary",
+        "payload": {
+            "total_agents": len(responses),
+            "successful_agents": len([r for r in responses if "出错" not in r["result"]]),
+            "step": "3/4"
+        },
+        "title": "结果汇总"
+    })
+
+    # 发送汇总的响应结果 - 合并所有事件为一个
     await broadcast_message_task(dsl, {
         "type": "coordination_result",
         "payload": {
             "triggered_by": "城市管理主智能体",
             "responses": responses,
-            "total_agents": len(responses)
+            "total_agents": len(responses),
+            "workflow_status": "completed",
+            "task_type": entry_point,
+            "summary": f"主智能体成功协调了 {len(responses)} 个子智能体完成 {entry_point} 任务",
+            "step": "4/4"
         },
-        "title": "子智能体协同完成"
-    })
-
-    # 简化的完成消息
-    await broadcast_message_task(dsl, {
-        "type": "workflow_complete",
-        "payload": f"工作流完成，主智能体成功协调了 {len(responses)} 个子智能体",
-        "title": "系统完成"
+        "title": "智能体协同完成"
     })
 
 
@@ -425,7 +468,7 @@ async def generate_report_workflow(dsl: DSL, events_data: list = None):
             report_prompt += f"{i}. {str(interaction)}\n"
 
     # 导入智能体实例
-    from backend.dependencies import weather_agent
+    from dependencies import weather_agent
     
     report_task = dsl.gen(
         name="generate_city_analysis_report",
@@ -441,5 +484,5 @@ async def generate_report_workflow(dsl: DSL, events_data: list = None):
         "type": "analysis_report",
         "payload": {"report": report_content},
         "title": "城市分析报告",
-        "timestamp": asyncio.get_event_loop().time()
+        "timestamp": datetime.now().isoformat()
     })

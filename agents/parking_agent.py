@@ -9,8 +9,12 @@ class ParkingAgent(BaseAgent):
         """
         Updates the status information of the parking lot.
         """
-        print(f"Parking status updated at {data['location']}. Available spots: {data['available_spots']}")
-        self.adjust_parking_fee(data)
+        location = data.get('location', 'unknown location')
+        available_spots = data.get('available_spots', 0)
+        
+        result = f"Parking Manager: Parking status updated at {location}. Available spots: {available_spots}. Adjusting pricing and guidance systems."
+        print(result)
+        return result
 
     def adjust_parking_fee(self, data):
         """

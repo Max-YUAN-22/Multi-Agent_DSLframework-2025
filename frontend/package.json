@@ -20,8 +20,8 @@
     "react-scripts": "5.0.1"
   },
   "scripts": {
-    "start": "PORT=3000 npm run start:frontend",
-    "start:frontend": "NODE_OPTIONS=--openssl-legacy-provider HOST=0.0.0.0 PORT=3000 REACT_APP_BACKEND_PORT=8008 react-scripts start",
+    "start": "PORT=3001 npm run start:frontend",
+    "start:frontend": "NODE_OPTIONS=--openssl-legacy-provider HOST=0.0.0.0 PORT=3001 REACT_APP_BACKEND_PORT=8008 react-scripts start",
     "start:backend": "cd ../backend && (sleep 2; PORT=${BACKEND_PORT:-8006} uvicorn main:app --reload --port ${BACKEND_PORT:-8006}) || echo 'Error starting backend service'",
     "build": "react-scripts build",
     "test": "react-scripts test",

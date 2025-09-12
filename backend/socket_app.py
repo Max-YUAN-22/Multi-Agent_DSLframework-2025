@@ -3,10 +3,10 @@ import asyncio
 import json
 import socketio
 from fastapi import APIRouter
-from backend.websocket_manager import manager
-from backend.websocket_connection_manager import connection_manager
-from backend.dsl_workflows import smart_city_simulation_workflow, generate_report_workflow
-from backend.dependencies import get_dsl_instance
+from websocket_manager import manager
+from websocket_connection_manager import connection_manager
+from dsl_workflows import smart_city_simulation_workflow, generate_report_workflow
+from dependencies import get_dsl_instance
 import logging
 
 logger = logging.getLogger(__name__)

@@ -2,12 +2,44 @@
 import React, { useState } from 'react';
 import './InteractionHistory.css';
 import WebSocketService from './WebSocketService';
+import AgentInteractionFlow from './AgentInteractionFlow';
 
-const InteractionHistory = ({ events = [], onClear, onGenerateReport, readyState, connectionStats }) => {
+const InteractionHistory = ({ 
+  events = [], 
+  onClear, 
+  onGenerateReport, 
+  onOpenReportSidebar, 
+  showReportsOnly, 
+  onToggleReportsOnly, 
+  readyState, 
+  connectionStats,
+  connectionError,
+  isRetrying,
+  onRetryConnection
+}) => {
   const [selectedSentEvent, setSelectedSentEvent] = useState(null);
   const [expandedEvents, setExpandedEvents] = useState(new Set());
 
   const getStatusPill = () => {
+    if (isRetrying) {
+      return <span className="pill pill-status-connecting">🔄 重连中 / Retrying...</span>;
+    }
+    
+    if (connectionError) {
+      return (
+        <div className="connection-error-container">
+          <span className="pill pill-status-closed">❌ 连接错误 / Connection Error</span>
+          <button 
+            className="retry-button" 
+            onClick={onRetryConnection}
+            disabled={isRetrying}
+          >
+            🔄 重试 / Retry
+          </button>
+        </div>
+      );
+    }
+    
     switch (readyState) {
       case 0: // CONNECTING
         return <span className="pill pill-status-connecting">🔄 连接中 / Connecting...</span>;
@@ -16,9 +48,31 @@ const InteractionHistory = ({ events = [], onClear, onGenerateReport, readyState
       case 2: // CLOSING
         return <span className="pill pill-status-closing">⏳ 断开中 / Disconnecting...</span>;
       case 3: // CLOSED
-        return <span className="pill pill-status-closed">❌ 服务不可用 / Service Unavailable</span>;
+        return (
+          <div className="connection-error-container">
+            <span className="pill pill-status-closed">❌ 服务不可用 / Service Unavailable</span>
+            <button 
+              className="retry-button" 
+              onClick={onRetryConnection}
+              disabled={isRetrying}
+            >
+              🔄 重试 / Retry
+            </button>
+          </div>
+        );
       default:
-        return <span className="pill pill-status-closed">❌ 服务不可用 / Service Unavailable</span>;
+        return (
+          <div className="connection-error-container">
+            <span className="pill pill-status-closed">❌ 服务不可用 / Service Unavailable</span>
+            <button 
+              className="retry-button" 
+              onClick={onRetryConnection}
+              disabled={isRetrying}
+            >
+              🔄 重试 / Retry
+            </button>
+          </div>
+        );
     }
   };
 
@@ -67,6 +121,12 @@ const InteractionHistory = ({ events = [], onClear, onGenerateReport, readyState
       'simulation_log': '📝',
       'error': '❌',
       'ping': '📡',
+      'broadcast': '📡',
+      'main_coordination': '👑',
+      'sub_agent_coordination': '🤝',
+      'sub_agent_processing': '⚙️',
+      'sub_agent_completed': '✅',
+      'result_summary': '📋',
       'default': '📝'
     };
     return icons[type] || icons['default'];
@@ -91,6 +151,12 @@ const InteractionHistory = ({ events = [], onClear, onGenerateReport, readyState
       'simulation_log': '模拟日志 / Simulation Log',
       'error': '错误 / Error',
       'ping': '心跳 / Ping',
+      'broadcast': '广播消息 / Broadcast',
+      'main_coordination': '主智能体协调 / Main Coordination',
+      'sub_agent_coordination': '子智能体协调 / Sub Agent Coordination',
+      'sub_agent_processing': '子智能体处理 / Sub Agent Processing',
+      'sub_agent_completed': '子智能体完成 / Sub Agent Completed',
+      'result_summary': '结果汇总 / Result Summary',
       'default': '未知事件 / Unknown Event'
     };
     return labels[type] || labels['default'];
@@ -206,7 +272,20 @@ const InteractionHistory = ({ events = [], onClear, onGenerateReport, readyState
       case 'analysis_report':
         return (
           <div className="event-payload">
-            <p className="payload-text">📊 分析报告已生成</p>
+            <div className="report-content">
+              <h4 className="report-title">📊 城市分析报告 / City Analysis Report</h4>
+              <div className="report-body">
+                {payload && payload.report ? (
+                  <div className="report-text">
+                    {payload.report.split('\n').map((line, index) => (
+                      <p key={index} className="report-paragraph">{line}</p>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="report-text">报告内容加载中... / Report content loading...</p>
+                )}
+              </div>
+            </div>
           </div>
         );
       case 'traffic_incident':
@@ -287,8 +366,8 @@ const InteractionHistory = ({ events = [], onClear, onGenerateReport, readyState
   };
 
   const getEventStats = () => {
-    const total = events.length;
-    const byType = events.reduce((acc, event) => {
+    const total = filteredEvents.length;
+    const byType = filteredEvents.reduce((acc, event) => {
       acc[event.type] = (acc[event.type] || 0) + 1;
       return acc;
     }, {});
@@ -297,7 +376,21 @@ const InteractionHistory = ({ events = [], onClear, onGenerateReport, readyState
 
   // 获取发送的事件（用户主动发送的事件）
   const getSentEvents = () => {
-    const sentEventTypes = ['weather_alert', 'parking_update', 'safety_inspection', 'autonomous_driving', 'traffic_monitor'];
+    const sentEventTypes = [
+      'weather_alert', 
+      'parking_update', 
+      'safety_inspection', 
+      'autonomous_driving', 
+      'traffic_monitor',
+      'broadcast',
+      'main_coordination',
+      'sub_agent_coordination',
+      'sub_agent_processing',
+      'sub_agent_completed',
+      'result_summary',
+      'coordination_result',
+      'analysis_report'
+    ];
     return events.filter(event => sentEventTypes.includes(event.type));
   };
 
@@ -308,24 +401,50 @@ const InteractionHistory = ({ events = [], onClear, onGenerateReport, readyState
 
   // 获取发送事件摘要
   const getSentEventSummary = (event) => {
-    if (!event || !event.payload) {
-      return event?.title || event?.type || '未知事件';
+    if (!event) {
+      return '未知事件';
     }
     
-    switch (event.type) {
-      case 'weather_alert':
-        return `区域: ${event.payload.area || '未知'} - 类型: ${event.payload.alert_type || '未知'}`;
-      case 'parking_update':
-        return `位置: ${event.payload.location || '未知'} - 可用车位: ${event.payload.available_spots || '未知'}`;
-      case 'safety_inspection':
-        return `位置: ${event.payload.location || '未知'} - 状态: ${event.payload.safety_status || '未知'}`;
-      case 'autonomous_driving':
-        return `起点: ${event.payload.start_location || '未知'} - 终点: ${event.payload.end_location || '未知'}`;
-      case 'traffic_monitor':
-        return `交通监控数据`;
-      default:
-        return event.title || event.type;
+    // 如果有title，优先使用title
+    if (event.title) {
+      return event.title;
     }
+    
+    // 如果有payload，根据类型生成摘要
+    if (event.payload) {
+      switch (event.type) {
+        case 'weather_alert':
+          return `区域: ${event.payload.area || '未知'} - 类型: ${event.payload.alert_type || '未知'}`;
+        case 'parking_update':
+          return `位置: ${event.payload.location || '未知'} - 可用车位: ${event.payload.available_spots || '未知'}`;
+        case 'safety_inspection':
+          return `位置: ${event.payload.location || '未知'} - 状态: ${event.payload.safety_status || '未知'}`;
+        case 'autonomous_driving':
+          return `起点: ${event.payload.start_location || '未知'} - 终点: ${event.payload.end_location || '未知'}`;
+        case 'traffic_monitor':
+          return `交通监控数据`;
+        case 'broadcast':
+          return event.payload.payload || event.payload.message || '广播消息';
+        case 'main_coordination':
+          return event.payload.result || '主智能体协调任务';
+        case 'sub_agent_coordination':
+          return event.payload || '子智能体协调开始';
+        case 'sub_agent_processing':
+          return event.payload.agent || '子智能体处理中';
+        case 'sub_agent_completed':
+          return event.payload.result || '子智能体处理完成';
+        case 'result_summary':
+          return `总计: ${event.payload.total_agents || 0} 个智能体, 成功: ${event.payload.successful_agents || 0} 个`;
+        case 'coordination_result':
+          return event.payload.summary || '智能体协同完成';
+        case 'analysis_report':
+          return event.payload.report ? event.payload.report.substring(0, 100) + '...' : '分析报告';
+        default:
+          return event.type || '未知事件';
+      }
+    }
+    
+    return event.type || '未知事件';
   };
 
   // 获取与发送事件相关的响应事件
@@ -363,6 +482,15 @@ const InteractionHistory = ({ events = [], onClear, onGenerateReport, readyState
     }).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
   };
 
+  // 过滤事件 - 如果只显示报告，则只显示报告类型的事件
+  const getFilteredEvents = () => {
+    if (showReportsOnly) {
+      return events.filter(event => event.type === 'analysis_report');
+    }
+    return events;
+  };
+
+  const filteredEvents = getFilteredEvents();
   const stats = getEventStats();
 
   return (
@@ -371,12 +499,18 @@ const InteractionHistory = ({ events = [], onClear, onGenerateReport, readyState
         <h2 className="card__title">📊 交互历史 / Interaction History</h2>
         <div className="header-controls">
           {getStatusPill()}
-          {readyState !== 1 && (
-            <button onClick={handleReconnect} className="reconnect-btn">
-              🔄 重连 / Reconnect
-            </button>
+          {connectionStats && (
+            <span className="pill pill-info">
+              📡 {connectionStats.userId ? connectionStats.userId.substring(0, 8) + '...' : 'Unknown'}
+            </span>
           )}
         </div>
+        {connectionError && (
+          <div className="connection-error-message">
+            <span className="error-icon">⚠️</span>
+            <span className="error-text">{connectionError}</span>
+          </div>
+        )}
       </div>
       
       {/* 连接状态信息 */}
@@ -403,11 +537,20 @@ const InteractionHistory = ({ events = [], onClear, onGenerateReport, readyState
 
       <div className="history-controls">
         <div className="action-buttons">
+          <button onClick={onOpenReportSidebar} className="report-sidebar-btn">
+            📊 交互报告 / Interaction Report
+          </button>
           <button onClick={onGenerateReport} className="generate-btn">
             📄 生成报告 / Generate Report
           </button>
           <button onClick={onClear} className="clear-btn">
             🗑️ 清空历史 / Clear History
+          </button>
+          <button 
+            onClick={onToggleReportsOnly} 
+            className={`view-reports-btn ${showReportsOnly ? 'active' : ''}`}
+          >
+            {showReportsOnly ? '📋 显示全部 / Show All' : '📊 查看报告 / View Reports'}
           </button>
         </div>
       </div>
@@ -416,37 +559,71 @@ const InteractionHistory = ({ events = [], onClear, onGenerateReport, readyState
         {/* 左侧：发送的事件详情 */}
         <div className="sent-events-sidebar">
           <div className="sidebar-header">
-            <h3>📤 发送的事件 / Sent Events</h3>
-            <span className="event-count">{getSentEventsCount()} 个事件</span>
+            <h3>{showReportsOnly ? '📊 报告信息 / Report Info' : '📤 发送的事件 / Sent Events'}</h3>
+            <span className="event-count">
+              {showReportsOnly ? `${filteredEvents.length} 个报告` : `${getSentEventsCount()} 个事件`}
+            </span>
           </div>
           <div className="sent-events-list">
-            {getSentEvents().length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-icon">📭</div>
-                <p className="empty-text">暂无发送事件 / No sent events yet</p>
-                <p className="empty-subtext">发送任务以查看事件详情 / Send tasks to view event details</p>
-              </div>
-            ) : (
-              getSentEvents().map((event, index) => (
-                <div 
-                  key={index} 
-                  className={`sent-event-item ${selectedSentEvent === index ? 'selected' : ''}`}
-                  onClick={() => setSelectedSentEvent(index)}
-                >
-                  <div className="event-header">
-                    <span className="event-icon">{getEventIcon(event.type)}</span>
-                    <div className="event-info">
-                      <div className="event-title">{getEventTypeLabel(event.type)}</div>
-                      <div className="event-meta">
-                        <span className="event-time">{event.timestamp ? new Date(event.timestamp).toLocaleTimeString() : '未知时间'}</span>
+            {showReportsOnly ? (
+              // 报告模式：显示报告相关信息
+              filteredEvents.length === 0 ? (
+                <div className="empty-state">
+                  <div className="empty-icon">📄</div>
+                  <p className="empty-text">暂无生成的报告 / No reports generated yet</p>
+                  <p className="empty-subtext">点击"生成报告"按钮创建报告 / Click "Generate Report" to create reports</p>
+                </div>
+              ) : (
+                filteredEvents.map((report, index) => (
+                  <div key={index} className="report-summary-item">
+                    <div className="event-header">
+                      <span className="event-icon">📊</span>
+                      <div className="event-info">
+                        <div className="event-title">{report.title || '城市分析报告'}</div>
+                        <div className="event-meta">
+                          <span className="event-time">{report.timestamp ? new Date(report.timestamp).toLocaleTimeString() : '未知时间'}</span>
+                        </div>
                       </div>
                     </div>
+                    <div className="event-summary">
+                      {report.payload && report.payload.report ? 
+                        `报告摘要: ${report.payload.report.substring(0, 100)}...` : 
+                        '报告内容加载中...'
+                      }
+                    </div>
                   </div>
-                  <div className="event-summary">
-                    {getSentEventSummary(event)}
-                  </div>
+                ))
+              )
+            ) : (
+              // 正常模式：显示发送事件
+              getSentEvents().length === 0 ? (
+                <div className="empty-state">
+                  <div className="empty-icon">📭</div>
+                  <p className="empty-text">暂无发送事件 / No sent events yet</p>
+                  <p className="empty-subtext">发送任务以查看事件详情 / Send tasks to view event details</p>
                 </div>
-              ))
+              ) : (
+                getSentEvents().map((event, index) => (
+                  <div 
+                    key={index} 
+                    className={`sent-event-item ${selectedSentEvent === index ? 'selected' : ''}`}
+                    onClick={() => setSelectedSentEvent(index)}
+                  >
+                    <div className="event-header">
+                      <span className="event-icon">{getEventIcon(event.type)}</span>
+                      <div className="event-info">
+                        <div className="event-title">{getEventTypeLabel(event.type)}</div>
+                        <div className="event-meta">
+                          <span className="event-time">{event.timestamp ? new Date(event.timestamp).toLocaleTimeString() : '未知时间'}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="event-summary">
+                      {getSentEventSummary(event)}
+                    </div>
+                  </div>
+                ))
+              )
             )}
           </div>
         </div>
@@ -493,6 +670,20 @@ const InteractionHistory = ({ events = [], onClear, onGenerateReport, readyState
                               {renderEventContent(sentEvent.type, sentEvent.payload)}
                             </div>
                           </div>
+                        </div>
+                      </div>
+
+                      {/* 显示智能体交互可视化 */}
+                      <div className="agent-visualization">
+                        <div className="detail-section-header">
+                          <span className="section-icon">🎯</span>
+                          <span className="section-title">智能体交互可视化 / Agent Interaction Visualization</span>
+                        </div>
+                        <div className="visualization-container">
+                          <AgentInteractionFlow 
+                            events={events} 
+                            selectedEvent={sentEvent}
+                          />
                         </div>
                       </div>
 
@@ -571,7 +762,7 @@ const InteractionHistory = ({ events = [], onClear, onGenerateReport, readyState
           </span>
           <span className="stat-item">
             <span className="stat-label">显示 / Showing:</span>
-            <span className="stat-value">{getSentEvents().length}</span>
+            <span className="stat-value">{filteredEvents.length}</span>
           </span>
         </div>
       </div>
