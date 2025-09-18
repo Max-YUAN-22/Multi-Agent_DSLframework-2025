@@ -1,12 +1,14 @@
-/* 企业级多智能体DSL界面样式 */
+/* 企业级多智能体DSL界面样式 - 保持左边排版 */
 .agent-architecture {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 20px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  flex-direction: column;
 }
 
-/* 企业级头部 */
+/* 企业级头部 - 保持左边排版 */
 .enterprise-header {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
@@ -15,12 +17,15 @@
   margin-bottom: 30px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
+  max-width: 1200px;
+  margin-left: 0;
+  margin-right: auto;
 }
 
 .header-content {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   flex-wrap: wrap;
   gap: 20px;
 }
@@ -34,7 +39,7 @@
   display: flex;
   flex-direction: column;
   gap: 15px;
-  align-items: flex-end;
+  align-items: flex-start;
 }
 
 .main-title {
@@ -90,7 +95,7 @@
   border: 1px solid rgba(102, 126, 234, 0.3);
 }
 
-/* 模式控制 */
+/* 模式控制 - 保持左边排版 */
 .mode-controls {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
@@ -99,6 +104,9 @@
   margin-bottom: 30px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
+  max-width: 1200px;
+  margin-left: 0;
+  margin-right: auto;
 }
 
 .mode-toggle {
@@ -197,12 +205,15 @@
   cursor: not-allowed;
 }
 
-/* 智能体网格 */
+/* 智能体网格 - 保持左边排版但优化布局 */
 .agents-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 25px;
   margin-bottom: 30px;
+  max-width: 1200px;
+  margin-left: 0;
+  margin-right: auto;
 }
 
 .agent-card {
@@ -357,7 +368,7 @@
   box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
 }
 
-/* 执行结果 */
+/* 执行结果 - 保持左边排版 */
 .execution-results {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
@@ -366,6 +377,9 @@
   margin-bottom: 30px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
+  max-width: 1200px;
+  margin-left: 0;
+  margin-right: auto;
 }
 
 .execution-results h3 {
@@ -428,7 +442,7 @@
   color: #999;
 }
 
-/* 交互历史 */
+/* 交互历史 - 保持左边排版 */
 .interaction-history {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
@@ -437,6 +451,9 @@
   margin-bottom: 30px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
+  max-width: 1200px;
+  margin-left: 0;
+  margin-right: auto;
 }
 
 .interaction-history h3 {
