@@ -13,9 +13,11 @@ const HomePage = () => {
   const [connectionStats, setConnectionStats] = useState(null);
 
   useEffect(() => {
-    const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8008';
+    // 优先使用环境变量，否则使用Render后端URL
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://multi-agent-dsl-backend.onrender.com';
     const wsUrl = backendUrl.replace('http', 'ws');
     console.log('🔌 尝试连接到:', wsUrl);
+    console.log('🔧 环境变量 REACT_APP_BACKEND_URL:', process.env.REACT_APP_BACKEND_URL);
     SimpleWebSocketService.connect(wsUrl);
 
     const handleConnect = () => {
