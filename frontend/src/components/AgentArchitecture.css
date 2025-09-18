@@ -1,16 +1,16 @@
-/* 拉长清晰的企业级多智能体DSL界面 */
+/* 真正清晰分离的企业级多智能体DSL界面 */
 .agent-architecture {
   min-height: 100vh;
-  background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e0 100%);
+  background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
   padding: 40px 20px;
   font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 40px;
+  gap: 50px;
 }
 
-/* 企业级头部 - 拉长设计 */
+/* 企业级头部 - 完全分离 */
 .enterprise-header {
   background: white;
   border-radius: 20px;
@@ -20,7 +20,6 @@
   max-width: 1400px;
   width: 100%;
   text-align: center;
-  margin-bottom: 20px;
 }
 
 .header-content {
@@ -96,7 +95,7 @@
   font-weight: 600;
 }
 
-/* 模式控制 - 拉长设计 */
+/* 模式控制 - 完全分离 */
 .mode-controls {
   background: white;
   border-radius: 20px;
@@ -106,7 +105,6 @@
   max-width: 1400px;
   width: 100%;
   text-align: center;
-  margin-bottom: 20px;
 }
 
 .mode-toggle {
@@ -215,12 +213,11 @@
   cursor: not-allowed;
 }
 
-/* 智能体网格 - 拉长清晰设计 */
+/* 智能体网格 - 完全分离 */
 .agents-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 35px;
-  margin-bottom: 40px;
+  gap: 40px;
   max-width: 1400px;
   width: 100%;
 }
@@ -234,7 +231,7 @@
   border: 2px solid transparent;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   position: relative;
-  min-height: 280px;
+  min-height: 300px;
   display: flex;
   flex-direction: column;
 }
@@ -370,7 +367,7 @@
   box-shadow: 0 6px 20px rgba(66, 153, 225, 0.4);
 }
 
-/* 执行结果 - 拉长设计 */
+/* 执行结果 - 完全分离 */
 .execution-results {
   background: white;
   border-radius: 20px;
@@ -379,7 +376,6 @@
   border: 1px solid #e2e8f0;
   max-width: 1400px;
   width: 100%;
-  margin-bottom: 20px;
 }
 
 .execution-results h3 {
@@ -447,7 +443,7 @@
   color: #718096;
 }
 
-/* 交互历史 - 拉长设计 */
+/* 交互历史 - 完全分离 */
 .interaction-history {
   background: white;
   border-radius: 20px;
@@ -456,7 +452,6 @@
   border: 1px solid #e2e8f0;
   max-width: 1400px;
   width: 100%;
-  margin-bottom: 20px;
 }
 
 .interaction-history h3 {
@@ -524,7 +519,7 @@
   color: #68d391;
 }
 
-/* 消息发送模态框 - 拉长设计 */
+/* 消息发送模态框 - 完全分离 */
 .send-modal {
   position: fixed;
   top: 0;
