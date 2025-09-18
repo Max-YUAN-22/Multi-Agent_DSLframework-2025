@@ -8,6 +8,7 @@ import UserSettings from './pages/UserSettings';
 import EnterpriseDashboard from './components/EnterpriseDashboard';
 import Navigation from './components/Navigation';
 import './App.css';
+import './animations.css';
 
 function App() {
   return (

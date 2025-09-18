@@ -37,10 +37,11 @@
 ## 🚀 快速开始
 
 ### 方式一：在线体验（推荐）
-1. 访问部署地址：[https://your-app.vercel.app](https://your-app.vercel.app)
+1. 访问部署地址：[https://multi-agent-ds-lframework-2025.vercel.app](https://multi-agent-ds-lframework-2025.vercel.app)
 2. 无需安装任何软件，直接在浏览器中使用
 3. 进入"系统设置"配置您的API密钥
 4. 返回"智能体交互"体验完整功能
+5. 查看"企业仪表板"监控系统状态
 
 ### 方式二：本地部署
 ```bash

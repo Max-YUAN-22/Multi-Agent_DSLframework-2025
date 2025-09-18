@@ -3,6 +3,7 @@ import { Container, Grid, Paper, Box, Typography, Button } from '@mui/material';
 import AgentArchitecture from '../components/AgentArchitecture';
 import InteractionHistory from '../components/InteractionHistory';
 import SimpleWebSocketService from '../components/SimpleWebSocketService';
+import './HomePage.css';
 
 const HomePage = () => {
   const [messages, setMessages] = useState([]);
@@ -78,61 +79,63 @@ const HomePage = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
-      {/* 连接状态显示 */}
-      <Paper sx={{ p: 2, mb: 3, backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Box>
-            <Typography variant="h6" gutterBottom>
-              🔗 连接状态: {getConnectionStatus()}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              后端地址: {getBackendUrl()}
-            </Typography>
-            {connectionStats && (
-              <Typography variant="body2" color="text.secondary">
-                消息数: {connectionStats.messageCount} | 连接时间: {connectionStats.connectionTime}
+    <div className="homepage">
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        {/* 连接状态显示 */}
+        <Paper className="connection-status-card">
+          <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2}>
+            <Box flex={1} minWidth="300px">
+              <Typography variant="h6" gutterBottom sx={{ color: '#1976d2', fontWeight: 600 }}>
+                🔗 连接状态: {getConnectionStatus()}
               </Typography>
-            )}
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                后端地址: {getBackendUrl()}
+              </Typography>
+              {connectionStats && (
+                <Typography variant="body2" color="text.secondary">
+                  消息数: {connectionStats.messageCount} | 连接时间: {connectionStats.connectionTime}
+                </Typography>
+              )}
+            </Box>
+            <Button 
+              className="status-button"
+              onClick={() => setShowHistory(!showHistory)}
+              sx={{ minWidth: 140, height: 40 }}
+            >
+              {showHistory ? '隐藏历史' : '显示历史'}
+            </Button>
           </Box>
-          <Button 
-            variant="outlined" 
-            onClick={() => setShowHistory(!showHistory)}
-            sx={{ minWidth: 120 }}
-          >
-            {showHistory ? '隐藏历史' : '显示历史'}
-          </Button>
-        </Box>
-      </Paper>
+        </Paper>
 
-      {/* 主要内容区域 */}
-      <Grid container spacing={3}>
-        {/* DSL多智能体界面 */}
-        <Grid item xs={12}>
-          <Paper sx={{ p: 3, backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
-            <Typography variant="h4" gutterBottom align="center" sx={{ mb: 3 }}>
-              🤖 多智能体DSL框架
-            </Typography>
-            <Typography variant="subtitle1" align="center" color="text.secondary" sx={{ mb: 4 }}>
-              12个智能体协作的完整DSL交互界面
-            </Typography>
-            <AgentArchitecture />
-          </Paper>
-        </Grid>
-
-        {/* 交互历史 */}
-        {showHistory && (
+        {/* 主要内容区域 */}
+        <Grid container spacing={3}>
+          {/* DSL多智能体界面 */}
           <Grid item xs={12}>
-            <Paper sx={{ p: 3, backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
-              <Typography variant="h5" gutterBottom>
-                📋 交互历史
+            <Paper className="main-content-card">
+              <Typography variant="h4" className="main-title">
+                🤖 多智能体DSL框架
               </Typography>
-              <InteractionHistory messages={messages} />
+              <Typography variant="subtitle1" className="main-subtitle">
+                12个智能体协作的完整DSL交互界面
+              </Typography>
+              <AgentArchitecture />
             </Paper>
           </Grid>
-        )}
-      </Grid>
-    </Container>
+
+          {/* 交互历史 */}
+          {showHistory && (
+            <Grid item xs={12}>
+              <Paper className="main-content-card">
+                <Typography variant="h5" gutterBottom sx={{ color: '#1976d2', fontWeight: 600 }}>
+                  📋 交互历史
+                </Typography>
+                <InteractionHistory messages={messages} />
+              </Paper>
+            </Grid>
+          )}
+        </Grid>
+      </Container>
+    </div>
   );
 };
 
