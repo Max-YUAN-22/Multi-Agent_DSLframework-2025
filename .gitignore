@@ -1,0 +1,88 @@
+# Development and build files
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Development tools and frameworks (keep local, exclude from GitHub)
+frontend/
+backend/
+config/
+presentation-site/
+multi-agent-dsl-framework/
+
+# Experimental and testing files (keep local, exclude from GitHub)
+analysis/
+experiments/
+scripts/
+tests/
+utils/
+runtime/
+
+# Results and data files (keep local, exclude from GitHub)
+results/
+submission_package/
+submission_package_clean/
+teacher_presentation_core/
+
+# Compressed files
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Presentation files
+*.pptx
+*.ppt
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# API keys and secrets
+.env
+*.key
+*.pem
+
+# Large data files (keep local, exclude from GitHub)
+*.csv
+*.json
+real_pvalues.json
+calculate_real_pvalues.py
+organize_project.py
+test_websocket.js
