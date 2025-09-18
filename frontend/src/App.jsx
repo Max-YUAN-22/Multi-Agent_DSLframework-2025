@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { EventProvider } from './contexts/EventContext';
+import { LanguageProvider } from './hooks/useTranslation';
 import MainLayout from './layouts/MainLayout';
 import HomePage from './pages/HomePage';
 import UserSettings from './pages/UserSettings';
@@ -11,29 +12,31 @@ import './App.css';
 function App() {
   return (
     <Router>
-      <div 
-        className="App"
-        style={{ 
-          backgroundImage: `url(${process.env.PUBLIC_URL + '/background.webp'})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          minHeight: '100vh'
-        }}
-      >
-        <Navigation />
-        <EventProvider>
-          <Routes>
-            <Route path="/" element={
-              <MainLayout>
-                <HomePage />
-              </MainLayout>
-            } />
-            <Route path="/dashboard" element={<EnterpriseDashboard />} />
-            <Route path="/settings" element={<UserSettings />} />
-          </Routes>
-        </EventProvider>
-      </div>
+      <LanguageProvider>
+        <div 
+          className="App"
+          style={{ 
+            backgroundImage: `url(${process.env.PUBLIC_URL + '/background.webp'})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            minHeight: '100vh'
+          }}
+        >
+          <Navigation />
+          <EventProvider>
+            <Routes>
+              <Route path="/" element={
+                <MainLayout>
+                  <HomePage />
+                </MainLayout>
+              } />
+              <Route path="/dashboard" element={<EnterpriseDashboard />} />
+              <Route path="/settings" element={<UserSettings />} />
+            </Routes>
+          </EventProvider>
+        </div>
+      </LanguageProvider>
     </Router>
   );
 }
