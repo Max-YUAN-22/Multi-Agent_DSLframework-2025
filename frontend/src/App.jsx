@@ -4,11 +4,11 @@ import { Box, CircularProgress, Container } from '@mui/material';
 import MainLayout from './layouts/MainLayout';
 
 // 懒加载页面组件以优化性能
-const HomePage = lazy(() => import('./pages/HomePage'));
-const DSLDemoPage = lazy(() => import('./pages/DSLDemoPage'));
-const AcademicPage = lazy(() => import('./pages/AcademicPage'));
-const EnterpriseDashboard = lazy(() => import('./components/EnterpriseDashboard'));
-const UserSettings = lazy(() => import('./pages/UserSettings'));
+const HomePage = lazy(() => import('./pages/HomePage.jsx'));
+const DSLDemoPage = lazy(() => import('./pages/DSLDemoPage.jsx'));
+const AcademicPage = lazy(() => import('./pages/AcademicPage.jsx'));
+const EnterpriseDashboard = lazy(() => import('./components/EnterpriseDashboard.jsx'));
+const UserSettings = lazy(() => import('./pages/UserSettings.jsx'));
 
 // 加载中组件
 const LoadingSpinner = () => (

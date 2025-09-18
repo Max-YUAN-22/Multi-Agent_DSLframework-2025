@@ -13,7 +13,7 @@ import {
   AccountCircle as AccountIcon,
   Notifications as NotificationsIcon
 } from '@mui/icons-material';
-import APIConfig from '../components/APIConfig';
+import APIConfig from '../components/APIConfig.jsx';
 import './UserSettings.css';
 
 function TabPanel({ children, value, index, ...other }) {
