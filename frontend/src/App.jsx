@@ -31,8 +31,16 @@ function App() {
                   <HomePage />
                 </MainLayout>
               } />
-              <Route path="/dashboard" element={<EnterpriseDashboard />} />
-              <Route path="/settings" element={<UserSettings />} />
+              <Route path="/dashboard" element={
+                <MainLayout>
+                  <EnterpriseDashboard />
+                </MainLayout>
+              } />
+              <Route path="/settings" element={
+                <MainLayout>
+                  <UserSettings />
+                </MainLayout>
+              } />
             </Routes>
           </EventProvider>
         </div>
