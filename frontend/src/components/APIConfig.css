@@ -1,0 +1,89 @@
+.api-config-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.api-config-card {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+}
+
+.api-config-title {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 12px 12px 0 0;
+}
+
+.api-config-title .MuiTypography-h5 {
+  color: white;
+  font-weight: 600;
+}
+
+.api-key-field {
+  margin-bottom: 16px;
+}
+
+.api-key-description {
+  font-size: 0.875rem;
+  color: #666;
+  margin-top: 4px;
+}
+
+.validation-status {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+  font-size: 0.875rem;
+}
+
+.validation-success {
+  color: #4caf50;
+}
+
+.validation-error {
+  color: #f44336;
+}
+
+.service-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  justify-content: flex-end;
+}
+
+.tip-box {
+  background: #f5f5f5;
+  border-left: 4px solid #2196f3;
+  padding: 12px;
+  margin-top: 20px;
+  border-radius: 4px;
+}
+
+.tip-box .tip-text {
+  color: #666;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .api-config-container {
+    padding: 10px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .api-config-title {
+    padding: 15px;
+  }
+}
