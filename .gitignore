@@ -55,6 +55,7 @@ runtime/
 
 # Results and data files (keep local, exclude from GitHub)
 results/
+submission/
 submission_package/
 submission_package_clean/
 teacher_presentation_core/
