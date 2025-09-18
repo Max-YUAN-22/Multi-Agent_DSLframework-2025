@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Grid, Paper } from '@mui/material';
-import AutonomousDrivingCard from '../components/AutonomousDrivingCard';
-import WeatherAlertCard from '../components/WeatherAlertCard';
-import ParkingUpdateCard from '../components/ParkingUpdateCard';
-import SafetyInspectionCard from '../components/SafetyInspectionCard';
+import { Container, Grid, Paper, Box, Typography, Button } from '@mui/material';
+import AgentArchitecture from '../components/AgentArchitecture';
 import InteractionHistory from '../components/InteractionHistory';
 import SimpleWebSocketService from '../components/SimpleWebSocketService';
 
@@ -11,6 +8,7 @@ const HomePage = () => {
   const [messages, setMessages] = useState([]);
   const [readyState, setReadyState] = useState(0); // 0 = connecting, 1 = open, 2 = closing, 3 = closed
   const [connectionStats, setConnectionStats] = useState(null);
+  const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
     // 优先使用环境变量，否则使用Render后端URL
@@ -52,169 +50,87 @@ const HomePage = () => {
       }
     };
 
-    const handleError = (error) => {
-      console.error('❌ WebSocket error:', error);
-      setReadyState(3); // WebSocket.CLOSED
-    };
-
+    // 注册事件监听器
     SimpleWebSocketService.on('connect', handleConnect);
     SimpleWebSocketService.on('disconnect', handleDisconnect);
     SimpleWebSocketService.on('message', handleMessage);
-    SimpleWebSocketService.on('error', handleError);
 
+    // 清理函数
     return () => {
-      console.log('🧹 Cleaning up WebSocket connection');
-      SimpleWebSocketService.disconnect();
+      SimpleWebSocketService.off('connect', handleConnect);
+      SimpleWebSocketService.off('disconnect', handleDisconnect);
+      SimpleWebSocketService.off('message', handleMessage);
     };
   }, []);
 
-  const handleSend = async (task, data) => {
-    try {
-      console.log('Sending task:', task, 'with data:', data, 'readyState:', readyState);
-      
-      // 根据任务类型发送到对应的API端点
-      let endpoint = '';
-      let payload = data;
-      
-      switch (task) {
-        case 'autonomous_driving_task':
-          endpoint = '/events/autonomous_driving';
-          payload = {
-            start_location: data.start_location || 'A',
-            end_location: data.end_location || 'B',
-            passengers: data.passengers || 2
-          };
-          break;
-        case 'weather_alert_task':
-          endpoint = '/events/weather_alert';
-          payload = {
-            area: data.location || 'City Center',
-            alert_type: data.alert_type || 'heavy_rain',
-            severity: data.severity || 8
-          };
-          break;
-        case 'parking_update_task':
-          endpoint = '/events/parking_update';
-          payload = {
-            location: data.location || 'City Center Parking',
-            available_spots: data.available_spots || 150
-          };
-          break;
-        case 'safety_inspection_task':
-          endpoint = '/events/safety_inspection';
-          payload = {
-            location: data.location || 'Bridge B',
-            safety_status: data.require_human_intervention ? 'warning' : 'ok',
-            require_human_intervention: data.require_human_intervention || true
-          };
-          break;
-        default:
-          console.error('Unknown task type:', task);
-          return;
-      }
-      
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8008'}${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload)
-      });
-      
-      if (response.ok) {
-        console.log('Task sent successfully');
-      } else {
-        console.error('Failed to send task:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error sending task:', error);
+  const getConnectionStatus = () => {
+    switch (readyState) {
+      case 0: return '🔄 Connecting...';
+      case 1: return '✅ Connected';
+      case 2: return '⏳ Closing...';
+      case 3: return '❌ Disconnected';
+      default: return '❓ Unknown';
     }
   };
 
-  const sendGenerateReport = async () => {
-    try {
-      console.log('Generating report...');
-      
-      // 获取最近的交互记录
-      const recentEvents = messages.slice(-5).map(msg => ({
-        type: msg.type,
-        payload: msg.payload,
-        title: msg.title,
-        timestamp: msg.timestamp
-      }));
-      
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8008'}/generate-report`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          events: recentEvents
-        })
-      });
-      
-      if (response.ok) {
-        console.log('Report generation started');
-      } else {
-        console.error('Failed to generate report:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error generating report:', error);
-    }
-  };
-
-  const clearHistory = () => {
-    setMessages([]);
+  const getBackendUrl = () => {
+    return process.env.REACT_APP_BACKEND_URL || 'https://multi-agent-dsl-backend.onrender.com';
   };
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      {/* 连接状态显示 */}
+      <Paper sx={{ p: 2, mb: 3, backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Box>
+            <Typography variant="h6" gutterBottom>
+              🔗 连接状态: {getConnectionStatus()}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              后端地址: {getBackendUrl()}
+            </Typography>
+            {connectionStats && (
+              <Typography variant="body2" color="text.secondary">
+                消息数: {connectionStats.messageCount} | 连接时间: {connectionStats.connectionTime}
+              </Typography>
+            )}
+          </Box>
+          <Button 
+            variant="outlined" 
+            onClick={() => setShowHistory(!showHistory)}
+            sx={{ minWidth: 120 }}
+          >
+            {showHistory ? '隐藏历史' : '显示历史'}
+          </Button>
+        </Box>
+      </Paper>
+
+      {/* 主要内容区域 */}
       <Grid container spacing={3}>
-        <Grid size={12}>
-          <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-            <div style={{ marginBottom: '10px', fontSize: '14px', color: '#666' }}>
-              Connection Status: {readyState === 1 ? '✅ Connected' : readyState === 0 ? '🔄 Connecting' : '❌ Disconnected'} | 
-              Messages: {messages.length} | 
-              Backend: http://localhost:8008
-              {connectionStats && (
-                <span style={{ marginLeft: '20px' }}>
-                  | User ID: {connectionStats.userId} | 
-                  Active Connections: {connectionStats.activeConnections}/{connectionStats.totalConnections}
-                </span>
-              )}
-            </div>
-            <InteractionHistory 
-              events={messages} 
-              readyState={readyState} 
-              onGenerateReport={sendGenerateReport} 
-              onClear={clearHistory} 
-            />
+        {/* DSL多智能体界面 */}
+        <Grid item xs={12}>
+          <Paper sx={{ p: 3, backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
+            <Typography variant="h4" gutterBottom align="center" sx={{ mb: 3 }}>
+              🤖 多智能体DSL框架
+            </Typography>
+            <Typography variant="subtitle1" align="center" color="text.secondary" sx={{ mb: 4 }}>
+              12个智能体协作的完整DSL交互界面
+            </Typography>
+            <AgentArchitecture />
           </Paper>
         </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <AutonomousDrivingCard 
-            onSend={(data) => handleSend('autonomous_driving_task', data)} 
-            readyState={readyState} 
-          />
-        </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <WeatherAlertCard 
-            onSend={(data) => handleSend('weather_alert_task', data)} 
-            readyState={readyState} 
-          />
-        </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <ParkingUpdateCard 
-            onSend={(data) => handleSend('parking_update_task', data)} 
-            readyState={readyState} 
-          />
-        </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <SafetyInspectionCard 
-            onSend={(data) => handleSend('safety_inspection_task', data)} 
-            readyState={readyState} 
-          />
-        </Grid>
+
+        {/* 交互历史 */}
+        {showHistory && (
+          <Grid item xs={12}>
+            <Paper sx={{ p: 3, backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
+              <Typography variant="h5" gutterBottom>
+                📋 交互历史
+              </Typography>
+              <InteractionHistory messages={messages} />
+            </Paper>
+          </Grid>
+        )}
       </Grid>
     </Container>
   );
