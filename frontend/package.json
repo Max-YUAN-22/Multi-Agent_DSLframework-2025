@@ -1,0 +1,44 @@
+{
+  "name": "autonomous-city-management",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.2",
+    "@mui/material": "^7.3.2",
+    "axios": "^1.11.0",
+    "express": "^4.18.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^7.9.1",
+    "recharts": "^3.1.2",
+    "socket.io-client": "^4.8.1",
+    "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "concurrently": "^7.6.0",
+    "http-proxy-middleware": "^3.0.5",
+    "react-scripts": "5.0.1"
+  },
+  "scripts": {
+    "start": "PORT=3000 npm run start:frontend",
+    "start:frontend": "NODE_OPTIONS=--openssl-legacy-provider HOST=0.0.0.0 PORT=3000 REACT_APP_BACKEND_PORT=8008 react-scripts start",
+    "start:backend": "cd ../backend && (sleep 2; PORT=${BACKEND_PORT:-8006} uvicorn main:app --reload --port ${BACKEND_PORT:-8006}) || echo 'Error starting backend service'",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

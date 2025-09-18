@@ -22,7 +22,7 @@ class RobustLLMClient:
     """增强的LLM客户端，具有重试机制和降级策略"""
     
     def __init__(self, api_key: str = None, base_url: str = None, model: str = "gpt-4o-mini"):
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY", "sk-0WQRDm5w3t3ukRFQ7j33rOUgLk9ezcTuwhsK7BXxgfyhYuqA").strip()
+        self.api_key = api_key or os.getenv("OPENAI_API_KEY", "").strip()
         self.base_url = base_url or "https://www.yunqiaoai.top/v1"
         self.model = model
         self.client = None
