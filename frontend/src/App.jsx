@@ -1,7 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Box, CircularProgress, Container } from '@mui/material';
-import MainLayout from './layouts/MainLayout';
+import MainLayout from './layouts/MainLayout.jsx';
 
 // 懒加载页面组件以优化性能
 const HomePage = lazy(() => import('./pages/HomePage.jsx'));
