@@ -39,7 +39,6 @@ ehthumbs.db
 Thumbs.db
 
 # Development tools and frameworks (keep local, exclude from GitHub)
-frontend/
 backend/
 config/
 presentation-site/
