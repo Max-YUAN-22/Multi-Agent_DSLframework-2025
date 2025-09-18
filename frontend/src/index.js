@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { Box, Typography, Container, AppBar, Toolbar, Button, Card, CardContent, Grid, Chip, Paper, Stepper, Step, StepLabel, StepContent, Alert, LinearProgress, Dialog, DialogTitle, DialogContent, DialogActions, IconButton } from '@mui/material';
-import { Science as ScienceIcon, Code as CodeIcon, School as SchoolIcon, Dashboard as DashboardIcon, PlayArrow as PlayIcon, CheckCircle as CheckCircleIcon, Close as CloseIcon, Info as InfoIcon } from '@mui/icons-material';
+import { Box, Typography, Container, AppBar, Toolbar, Button, Card, CardContent, Grid, Chip, Paper, Stepper, Step, StepLabel, StepContent, Alert, LinearProgress, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Avatar, List, ListItem, ListItemAvatar, ListItemText, ListItemSecondaryAction, Switch, FormControlLabel, TextField, Divider, Badge, Tooltip, Fab } from '@mui/material';
+import { Science as ScienceIcon, Code as CodeIcon, School as SchoolIcon, Dashboard as DashboardIcon, PlayArrow as PlayIcon, CheckCircle as CheckCircleIcon, Close as CloseIcon, Info as InfoIcon, Group as GroupIcon, History as HistoryIcon, Settings as SettingsIcon, Chat as ChatIcon, Send as SendIcon, Visibility as VisibilityIcon, VisibilityOff as VisibilityOffIcon, Refresh as RefreshIcon, Add as AddIcon } from '@mui/icons-material';
 
 // 创建企业级主题
 const theme = createTheme({
@@ -418,6 +418,652 @@ def collaborative_learning():
   );
 }
 
+// 12个智能体界面组件
+function AgentsInterface() {
+  const [agents, setAgents] = React.useState([
+    { id: 1, name: 'Weather Agent', status: 'active', tasks: 23, efficiency: 96, avatar: '🌤️', description: '天气监控智能体' },
+    { id: 2, name: 'Traffic Agent', status: 'active', tasks: 45, efficiency: 94, avatar: '🚦', description: '交通管理智能体' },
+    { id: 3, name: 'Parking Agent', status: 'active', tasks: 18, efficiency: 98, avatar: '🅿️', description: '停车管理智能体' },
+    { id: 4, name: 'Safety Agent', status: 'warning', tasks: 12, efficiency: 89, avatar: '🛡️', description: '安全监控智能体' },
+    { id: 5, name: 'EMS Agent', status: 'active', tasks: 8, efficiency: 97, avatar: '🚑', description: '紧急医疗服务智能体' },
+    { id: 6, name: 'Energy Agent', status: 'active', tasks: 15, efficiency: 95, avatar: '⚡', description: '能源管理智能体' },
+    { id: 7, name: 'Water Agent', status: 'active', tasks: 22, efficiency: 93, avatar: '💧', description: '水资源管理智能体' },
+    { id: 8, name: 'Waste Agent', status: 'active', tasks: 19, efficiency: 91, avatar: '🗑️', description: '垃圾处理智能体' },
+    { id: 9, name: 'Security Agent', status: 'active', tasks: 31, efficiency: 96, avatar: '🔒', description: '安全防护智能体' },
+    { id: 10, name: 'Education Agent', status: 'active', tasks: 14, efficiency: 92, avatar: '🎓', description: '教育服务智能体' },
+    { id: 11, name: 'Healthcare Agent', status: 'active', tasks: 27, efficiency: 94, avatar: '🏥', description: '医疗健康智能体' },
+    { id: 12, name: 'Transport Agent', status: 'active', tasks: 33, efficiency: 97, avatar: '🚌', description: '公共交通智能体' },
+  ]);
+
+  const [selectedAgent, setSelectedAgent] = React.useState(null);
+  const [showDetails, setShowDetails] = React.useState(false);
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'active': return 'success';
+      case 'warning': return 'warning';
+      case 'error': return 'error';
+      default: return 'default';
+    }
+  };
+
+  const handleAgentClick = (agent) => {
+    setSelectedAgent(agent);
+    setShowDetails(true);
+  };
+
+  const handleCloseDetails = () => {
+    setShowDetails(false);
+    setSelectedAgent(null);
+  };
+
+  const handleToggleAgent = (agentId) => {
+    setAgents(prev => prev.map(agent => 
+      agent.id === agentId 
+        ? { ...agent, status: agent.status === 'active' ? 'inactive' : 'active' }
+        : agent
+    ));
+  };
+
+  return (
+    <Container maxWidth="lg">
+      <Box sx={{ py: 4 }}>
+        {/* Header */}
+        <Box sx={{ textAlign: 'center', mb: 6 }}>
+          <Typography
+            variant="h3"
+            component="h1"
+            gutterBottom
+            sx={{ fontWeight: 700 }}
+          >
+            智能体管理系统
+          </Typography>
+          <Typography
+            variant="h6"
+            color="text.secondary"
+            sx={{ maxWidth: 800, mx: 'auto' }}
+          >
+            管理12个核心智能体，实现智能城市全方位协调
+          </Typography>
+        </Box>
+
+        {/* Statistics */}
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ textAlign: 'center' }}>
+              <CardContent>
+                <GroupIcon sx={{ fontSize: 40, color: 'primary.main', mb: 1 }} />
+                <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                  {agents.length}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  总智能体数
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ textAlign: 'center' }}>
+              <CardContent>
+                <CheckCircleIcon sx={{ fontSize: 40, color: 'success.main', mb: 1 }} />
+                <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                  {agents.filter(a => a.status === 'active').length}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  活跃智能体
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ textAlign: 'center' }}>
+              <CardContent>
+                <HistoryIcon sx={{ fontSize: 40, color: 'info.main', mb: 1 }} />
+                <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                  {agents.reduce((sum, agent) => sum + agent.tasks, 0)}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  总任务数
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ textAlign: 'center' }}>
+              <CardContent>
+                <SettingsIcon sx={{ fontSize: 40, color: 'warning.main', mb: 1 }} />
+                <Typography variant="h4" sx={{ fontWeight: 700 }}>
+                  {Math.round(agents.reduce((sum, agent) => sum + agent.efficiency, 0) / agents.length)}%
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  平均效率
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+
+        {/* Agents Grid */}
+        <Grid container spacing={3}>
+          {agents.map((agent) => (
+            <Grid item xs={12} sm={6} md={4} key={agent.id}>
+              <Card 
+                sx={{ 
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s ease-in-out',
+                  '&:hover': {
+                    transform: 'translateY(-4px)',
+                    boxShadow: 4,
+                  }
+                }}
+                onClick={() => handleAgentClick(agent)}
+              >
+                <CardContent>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <Avatar sx={{ mr: 2, fontSize: '1.5rem' }}>
+                      {agent.avatar}
+                    </Avatar>
+                    <Box sx={{ flexGrow: 1 }}>
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        {agent.name}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {agent.description}
+                      </Typography>
+                    </Box>
+                    <Chip 
+                      label={agent.status} 
+                      color={getStatusColor(agent.status)} 
+                      size="small" 
+                    />
+                  </Box>
+                  
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                    <Box>
+                      <Typography variant="body2" color="text.secondary">
+                        任务数
+                      </Typography>
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        {agent.tasks}
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="body2" color="text.secondary">
+                        效率
+                      </Typography>
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        {agent.efficiency}%
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  <LinearProgress 
+                    variant="determinate" 
+                    value={agent.efficiency} 
+                    sx={{ mb: 2 }}
+                  />
+
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={agent.status === 'active'}
+                          onChange={() => handleToggleAgent(agent.id)}
+                          size="small"
+                        />
+                      }
+                      label="启用"
+                    />
+                    <Button size="small" startIcon={<InfoIcon />}>
+                      详情
+                    </Button>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
+
+      {/* Agent Details Dialog */}
+      <Dialog 
+        open={showDetails} 
+        onClose={handleCloseDetails}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Avatar sx={{ mr: 2, fontSize: '1.5rem' }}>
+                {selectedAgent?.avatar}
+              </Avatar>
+              <Box>
+                <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                  {selectedAgent?.name}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {selectedAgent?.description}
+                </Typography>
+              </Box>
+            </Box>
+            <IconButton onClick={handleCloseDetails}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          {selectedAgent && (
+            <Box>
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={6}>
+                  <Typography variant="h6" gutterBottom>
+                    性能指标
+                  </Typography>
+                  <List dense>
+                    <ListItem>
+                      <ListItemText 
+                        primary="任务数量" 
+                        secondary={selectedAgent.tasks}
+                      />
+                    </ListItem>
+                    <ListItem>
+                      <ListItemText 
+                        primary="运行效率" 
+                        secondary={`${selectedAgent.efficiency}%`}
+                      />
+                    </ListItem>
+                    <ListItem>
+                      <ListItemText 
+                        primary="运行状态" 
+                        secondary={
+                          <Chip 
+                            label={selectedAgent.status} 
+                            color={getStatusColor(selectedAgent.status)} 
+                            size="small" 
+                          />
+                        }
+                      />
+                    </ListItem>
+                  </List>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Typography variant="h6" gutterBottom>
+                    实时监控
+                  </Typography>
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                      效率趋势
+                    </Typography>
+                    <LinearProgress 
+                      variant="determinate" 
+                      value={selectedAgent.efficiency} 
+                      sx={{ mb: 1 }}
+                    />
+                    <Typography variant="body2">
+                      {selectedAgent.efficiency}%
+                    </Typography>
+                  </Box>
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                      任务负载
+                    </Typography>
+                    <LinearProgress 
+                      variant="determinate" 
+                      value={(selectedAgent.tasks / 50) * 100} 
+                      color="secondary"
+                      sx={{ mb: 1 }}
+                    />
+                    <Typography variant="body2">
+                      {selectedAgent.tasks}/50 任务
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDetails} variant="outlined">
+            关闭
+          </Button>
+          <Button onClick={handleCloseDetails} variant="contained">
+            配置智能体
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Container>
+  );
+}
+
+// 交互记录界面组件
+function InteractionHistory() {
+  const [interactions, setInteractions] = React.useState([
+    {
+      id: 1,
+      timestamp: '2024-01-15 14:32:15',
+      agent1: 'Weather Agent',
+      agent2: 'Traffic Agent',
+      type: '数据共享',
+      status: '成功',
+      description: '天气数据共享给交通管理系统',
+      avatar1: '🌤️',
+      avatar2: '🚦'
+    },
+    {
+      id: 2,
+      timestamp: '2024-01-15 14:28:42',
+      agent1: 'Parking Agent',
+      agent2: 'Safety Agent',
+      type: '协作任务',
+      status: '进行中',
+      description: '停车场安全监控协作',
+      avatar1: '🅿️',
+      avatar2: '🛡️'
+    },
+    {
+      id: 3,
+      timestamp: '2024-01-15 14:25:18',
+      agent1: 'EMS Agent',
+      agent2: 'Transport Agent',
+      type: '紧急协调',
+      status: '成功',
+      description: '紧急医疗服务与交通协调',
+      avatar1: '🚑',
+      avatar2: '🚌'
+    },
+    {
+      id: 4,
+      timestamp: '2024-01-15 14:20:33',
+      agent1: 'Energy Agent',
+      agent2: 'Water Agent',
+      type: '资源优化',
+      status: '成功',
+      description: '能源与水资源优化配置',
+      avatar1: '⚡',
+      avatar2: '💧'
+    },
+    {
+      id: 5,
+      timestamp: '2024-01-15 14:15:27',
+      agent1: 'Security Agent',
+      agent2: 'Healthcare Agent',
+      type: '信息交换',
+      status: '成功',
+      description: '安全信息与医疗数据交换',
+      avatar1: '🔒',
+      avatar2: '🏥'
+    },
+  ]);
+
+  const [filter, setFilter] = React.useState('all');
+  const [showDetails, setShowDetails] = React.useState(false);
+  const [selectedInteraction, setSelectedInteraction] = React.useState(null);
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case '成功': return 'success';
+      case '进行中': return 'warning';
+      case '失败': return 'error';
+      default: return 'default';
+    }
+  };
+
+  const handleInteractionClick = (interaction) => {
+    setSelectedInteraction(interaction);
+    setShowDetails(true);
+  };
+
+  const handleCloseDetails = () => {
+    setShowDetails(false);
+    setSelectedInteraction(null);
+  };
+
+  const filteredInteractions = filter === 'all' 
+    ? interactions 
+    : interactions.filter(i => i.status === filter);
+
+  return (
+    <Container maxWidth="lg">
+      <Box sx={{ py: 4 }}>
+        {/* Header */}
+        <Box sx={{ textAlign: 'center', mb: 6 }}>
+          <Typography
+            variant="h3"
+            component="h1"
+            gutterBottom
+            sx={{ fontWeight: 700 }}
+          >
+            智能体交互记录
+          </Typography>
+          <Typography
+            variant="h6"
+            color="text.secondary"
+            sx={{ maxWidth: 800, mx: 'auto' }}
+          >
+            实时监控智能体间的协作与交互历史
+          </Typography>
+        </Box>
+
+        {/* Filter Controls */}
+        <Box sx={{ mb: 4, display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <Button
+            variant={filter === 'all' ? 'contained' : 'outlined'}
+            onClick={() => setFilter('all')}
+          >
+            全部 ({interactions.length})
+          </Button>
+          <Button
+            variant={filter === '成功' ? 'contained' : 'outlined'}
+            onClick={() => setFilter('成功')}
+            color="success"
+          >
+            成功 ({interactions.filter(i => i.status === '成功').length})
+          </Button>
+          <Button
+            variant={filter === '进行中' ? 'contained' : 'outlined'}
+            onClick={() => setFilter('进行中')}
+            color="warning"
+          >
+            进行中 ({interactions.filter(i => i.status === '进行中').length})
+          </Button>
+          <Button
+            variant={filter === '失败' ? 'contained' : 'outlined'}
+            onClick={() => setFilter('失败')}
+            color="error"
+          >
+            失败 ({interactions.filter(i => i.status === '失败').length})
+          </Button>
+        </Box>
+
+        {/* Interactions List */}
+        <Paper elevation={2}>
+          <List>
+            {filteredInteractions.map((interaction, index) => (
+              <React.Fragment key={interaction.id}>
+                <ListItem 
+                  sx={{ 
+                    cursor: 'pointer',
+                    '&:hover': { backgroundColor: 'action.hover' }
+                  }}
+                  onClick={() => handleInteractionClick(interaction)}
+                >
+                  <ListItemAvatar>
+                    <Avatar sx={{ bgcolor: 'primary.main' }}>
+                      <ChatIcon />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Avatar sx={{ width: 24, height: 24, fontSize: '0.8rem' }}>
+                            {interaction.avatar1}
+                          </Avatar>
+                          <Typography variant="body2">
+                            {interaction.agent1}
+                          </Typography>
+                        </Box>
+                        <Typography variant="body2" color="text.secondary">
+                          ↔
+                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Avatar sx={{ width: 24, height: 24, fontSize: '0.8rem' }}>
+                            {interaction.avatar2}
+                          </Avatar>
+                          <Typography variant="body2">
+                            {interaction.agent2}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    }
+                    secondary={
+                      <Box>
+                        <Typography variant="body2" color="text.secondary">
+                          {interaction.description}
+                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 1 }}>
+                          <Chip 
+                            label={interaction.type} 
+                            size="small" 
+                            variant="outlined"
+                          />
+                          <Chip 
+                            label={interaction.status} 
+                            color={getStatusColor(interaction.status)}
+                            size="small" 
+                          />
+                          <Typography variant="caption" color="text.secondary">
+                            {interaction.timestamp}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    }
+                  />
+                  <ListItemSecondaryAction>
+                    <IconButton edge="end">
+                      <VisibilityIcon />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                </ListItem>
+                {index < filteredInteractions.length - 1 && <Divider />}
+              </React.Fragment>
+            ))}
+          </List>
+        </Paper>
+
+        {/* Add New Interaction FAB */}
+        <Fab
+          color="primary"
+          sx={{ position: 'fixed', bottom: 16, right: 16 }}
+          onClick={() => {
+            const newInteraction = {
+              id: interactions.length + 1,
+              timestamp: new Date().toLocaleString('zh-CN'),
+              agent1: 'New Agent',
+              agent2: 'System',
+              type: '测试交互',
+              status: '进行中',
+              description: '新的智能体交互测试',
+              avatar1: '🤖',
+              avatar2: '⚙️'
+            };
+            setInteractions(prev => [newInteraction, ...prev]);
+          }}
+        >
+          <AddIcon />
+        </Fab>
+      </Box>
+
+      {/* Interaction Details Dialog */}
+      <Dialog 
+        open={showDetails} 
+        onClose={handleCloseDetails}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h5" sx={{ fontWeight: 600 }}>
+              交互详情
+            </Typography>
+            <IconButton onClick={handleCloseDetails}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          {selectedInteraction && (
+            <Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+                <Avatar sx={{ bgcolor: 'primary.main' }}>
+                  {selectedInteraction.avatar1}
+                </Avatar>
+                <Typography variant="h6">
+                  {selectedInteraction.agent1}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  ↔
+                </Typography>
+                <Typography variant="h6">
+                  {selectedInteraction.agent2}
+                </Typography>
+                <Avatar sx={{ bgcolor: 'secondary.main' }}>
+                  {selectedInteraction.avatar2}
+                </Avatar>
+              </Box>
+
+              <Typography variant="h6" gutterBottom>
+                交互信息
+              </Typography>
+              <List dense>
+                <ListItem>
+                  <ListItemText 
+                    primary="交互类型" 
+                    secondary={selectedInteraction.type}
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText 
+                    primary="状态" 
+                    secondary={
+                      <Chip 
+                        label={selectedInteraction.status} 
+                        color={getStatusColor(selectedInteraction.status)}
+                        size="small" 
+                      />
+                    }
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText 
+                    primary="时间戳" 
+                    secondary={selectedInteraction.timestamp}
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText 
+                    primary="描述" 
+                    secondary={selectedInteraction.description}
+                  />
+                </ListItem>
+              </List>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDetails} variant="outlined">
+            关闭
+          </Button>
+          <Button onClick={handleCloseDetails} variant="contained">
+            查看日志
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Container>
+  );
+}
+
 // 简化的首页组件
 function HomePage() {
   const features = [
@@ -628,9 +1274,15 @@ function Navigation() {
             多智能体DSL框架
           </Typography>
         </Box>
-        <Box sx={{ display: 'flex', gap: 1 }}>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           <Button color="inherit" startIcon={<CodeIcon />} onClick={() => navigate('/dsl-demo')}>
             DSL演示
+          </Button>
+          <Button color="inherit" startIcon={<GroupIcon />} onClick={() => navigate('/agents')}>
+            智能体管理
+          </Button>
+          <Button color="inherit" startIcon={<HistoryIcon />} onClick={() => navigate('/interactions')}>
+            交互记录
           </Button>
           <Button color="inherit" startIcon={<SchoolIcon />} onClick={() => navigate('/academic')}>
             学术论文
@@ -654,6 +1306,8 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/dsl-demo" element={<DSLDemoPage />} />
+          <Route path="/agents" element={<AgentsInterface />} />
+          <Route path="/interactions" element={<InteractionHistory />} />
           <Route path="/academic" element={<HomePage />} />
           <Route path="/dashboard" element={<HomePage />} />
         </Routes>
