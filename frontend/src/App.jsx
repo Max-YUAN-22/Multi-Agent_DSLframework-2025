@@ -1,52 +1,42 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { EventProvider } from './contexts/EventContext';
-import { LanguageProvider } from './hooks/useTranslation';
+import React, { Suspense, lazy } from 'react';
+import { Routes, Route } from 'react-router-dom';
+import { Box, CircularProgress, Container } from '@mui/material';
 import MainLayout from './layouts/MainLayout';
-import HomePage from './pages/HomePage';
-import UserSettings from './pages/UserSettings';
-import EnterpriseDashboard from './components/EnterpriseDashboard';
-import Navigation from './components/Navigation';
-import './App.css';
-import './animations.css';
+
+// 懒加载页面组件以优化性能
+const HomePage = lazy(() => import('./pages/HomePage'));
+const DSLDemoPage = lazy(() => import('./pages/DSLDemoPage'));
+const AcademicPage = lazy(() => import('./pages/AcademicPage'));
+const EnterpriseDashboard = lazy(() => import('./components/EnterpriseDashboard'));
+const UserSettings = lazy(() => import('./pages/UserSettings'));
+
+// 加载中组件
+const LoadingSpinner = () => (
+  <Box 
+    display="flex" 
+    justifyContent="center" 
+    alignItems="center" 
+    minHeight="400px"
+  >
+    <CircularProgress size={60} />
+  </Box>
+);
 
 function App() {
   return (
-    <Router>
-      <LanguageProvider>
-        <div 
-          className="App"
-          style={{ 
-            backgroundImage: `url(${process.env.PUBLIC_URL + '/background.webp'})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            minHeight: '100vh'
-          }}
-        >
-          <Navigation />
-          <EventProvider>
-            <Routes>
-              <Route path="/" element={
-                <MainLayout>
-                  <HomePage />
-                </MainLayout>
-              } />
-              <Route path="/dashboard" element={
-                <MainLayout>
-                  <EnterpriseDashboard />
-                </MainLayout>
-              } />
-              <Route path="/settings" element={
-                <MainLayout>
-                  <UserSettings />
-                </MainLayout>
-              } />
-            </Routes>
-          </EventProvider>
-        </div>
-      </LanguageProvider>
-    </Router>
+    <MainLayout>
+      <Container maxWidth="xl" sx={{ py: 3 }}>
+        <Suspense fallback={<LoadingSpinner />}>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/dsl-demo" element={<DSLDemoPage />} />
+            <Route path="/academic" element={<AcademicPage />} />
+            <Route path="/dashboard" element={<EnterpriseDashboard />} />
+            <Route path="/settings" element={<UserSettings />} />
+          </Routes>
+        </Suspense>
+      </Container>
+    </MainLayout>
   );
 }
 

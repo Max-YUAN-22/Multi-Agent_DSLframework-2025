@@ -1,56 +1,98 @@
-// frontend/src/components/Header.jsx
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { IconButton, Tooltip, Button } from '@mui/material';
-import { Settings as SettingsIcon, Dashboard as DashboardIcon, SmartToy as SmartToyIcon } from '@mui/icons-material';
-import './Header.css';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Box,
+  Button,
+  IconButton,
+  useTheme,
+  useMediaQuery,
+} from '@mui/material';
+import {
+  Menu as MenuIcon,
+  Science as ScienceIcon,
+  Business as BusinessIcon,
+} from '@mui/icons-material';
 
-const Header = () => {
+function Header() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
   return (
-    <header className="page__header">
-      <div className="header-content">
-        <div className="header-main">
-          <h1 className="main-title">Multi-Agent DSL Framework</h1>
-          <div className="header-actions">
-            <Tooltip title="智能体交互">
-              <Button
-                component={Link}
-                to="/"
-                variant="outlined"
-                startIcon={<SmartToyIcon />}
-                className="interaction-button"
-              >
-                智能体交互
-              </Button>
-            </Tooltip>
-            <Tooltip title="企业仪表板">
-              <Button
-                component={Link}
-                to="/dashboard"
-                variant="outlined"
-                startIcon={<DashboardIcon />}
-                className="dashboard-button"
-              >
-                仪表板
-              </Button>
-            </Tooltip>
-            <Tooltip title="系统设置">
-              <IconButton
-                component={Link}
-                to="/settings"
-                className="settings-button"
-                size="large"
-              >
-                <SettingsIcon />
-              </IconButton>
-            </Tooltip>
-          </div>
-        </div>
-        <h2 className="subtitle">Intelligent City Management & Autonomous Driving Coordination</h2>
-        <p className="description">A real-time multi-agent system powered by Domain-Specific Language (DSL) orchestration</p>
-      </div>
-    </header>
+    <AppBar 
+      position="sticky" 
+      elevation={2}
+      sx={{ 
+        backgroundColor: 'white',
+        color: 'text.primary',
+        borderBottom: '1px solid',
+        borderColor: 'divider',
+      }}
+    >
+      <Toolbar sx={{ justifyContent: 'space-between', py: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <ScienceIcon sx={{ fontSize: 32, color: 'primary.main' }} />
+          <Box>
+            <Typography 
+              variant="h5" 
+              component="h1" 
+              sx={{ 
+                fontWeight: 700,
+                color: 'primary.main',
+                lineHeight: 1.2,
+              }}
+            >
+              多智能体DSL框架
+            </Typography>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                color: 'text.secondary',
+                fontSize: '0.75rem',
+                fontWeight: 500,
+              }}
+            >
+              Multi-Agent Domain-Specific Language Framework
+            </Typography>
+          </Box>
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<ScienceIcon />}
+            sx={{ 
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 500,
+            }}
+          >
+            学术论文
+          </Button>
+          <Button
+            variant="contained"
+            size="small"
+            startIcon={<BusinessIcon />}
+            sx={{ 
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 500,
+            }}
+          >
+            企业演示
+          </Button>
+          
+          {isMobile && (
+            <IconButton color="inherit">
+              <MenuIcon />
+            </IconButton>
+          )}
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
-};
+}
 
 export default Header;
