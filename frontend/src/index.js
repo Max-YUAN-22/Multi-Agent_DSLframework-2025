@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { Box, Typography, Container, AppBar, Toolbar, Button, Card, CardContent, Grid, Chip } from '@mui/material';
-import { Science as ScienceIcon, Code as CodeIcon, School as SchoolIcon, Dashboard as DashboardIcon } from '@mui/icons-material';
+import { Box, Typography, Container, AppBar, Toolbar, Button, Card, CardContent, Grid, Chip, Paper, Stepper, Step, StepLabel, StepContent, Alert, LinearProgress, Dialog, DialogTitle, DialogContent, DialogActions, IconButton } from '@mui/material';
+import { Science as ScienceIcon, Code as CodeIcon, School as SchoolIcon, Dashboard as DashboardIcon, PlayArrow as PlayIcon, CheckCircle as CheckCircleIcon, Close as CloseIcon, Info as InfoIcon } from '@mui/icons-material';
 
 // 创建企业级主题
 const theme = createTheme({
@@ -39,6 +39,384 @@ const theme = createTheme({
     },
   },
 });
+
+// DSL演示页面组件
+function DSLDemoPage() {
+  const [activeStep, setActiveStep] = React.useState(0);
+  const [isRunning, setIsRunning] = React.useState(false);
+  const [results, setResults] = React.useState({});
+  const [progress, setProgress] = React.useState(0);
+  const [showDetails, setShowDetails] = React.useState(false);
+  const [selectedAlgorithm, setSelectedAlgorithm] = React.useState(null);
+
+  const dslExamples = [
+    {
+      title: 'ATSLP - 自适应任务调度',
+      description: '演示基于负载预测的智能任务分配',
+      code: `# ATSLP算法演示
+from dsl import DSL, program
+
+@program
+def smart_city_coordination():
+    dsl = DSL(workers=8)
+    
+    # 创建智能体任务
+    weather_task = dsl.gen("weather_monitor", 
+                          prompt="监控城市天气状况",
+                          agent="weather_agent")
+                          .with_priority(1)
+                          .with_timeout(5.0)
+                          .schedule()
+    
+    traffic_task = dsl.gen("traffic_optimization",
+                          prompt="优化交通流量",
+                          agent="traffic_agent")
+                          .with_priority(2)
+                          .with_timeout(10.0)
+                          .schedule()
+    
+    # 自适应调度执行
+    results = dsl.join([weather_task, traffic_task], 
+                      mode="all", within_ms=5000)
+    
+    return results`,
+      algorithm: 'ATSLP',
+      features: ['负载预测', '优先级调度', '超时控制', '自适应分配'],
+    },
+    {
+      title: 'HCMPL - 分层缓存管理',
+      description: '展示智能缓存模式学习和多级管理',
+      code: `# HCMPL算法演示
+@program
+def cache_optimization():
+    dsl = DSL()
+    
+    # 配置缓存策略
+    dsl.use_llm(llm_callable, use_cache=True)
+    
+    # 创建缓存感知任务
+    analysis_task = dsl.gen("data_analysis",
+                          prompt="分析城市数据模式",
+                          agent="analytics_agent")
+                          .with_contract(Contract(
+                              name="analysis-contract",
+                              regex=r"\\d+\\s+patterns"
+                          ))
+                          .schedule()
+    
+    # 缓存模式学习
+    dsl.on("cache_hit", lambda data: print(f"缓存命中: {data}"))
+    dsl.on("cache_miss", lambda data: print(f"缓存未命中: {data}"))
+    
+    result = analysis_task.wait()
+    return result`,
+      algorithm: 'HCMPL',
+      features: ['模式学习', '多级缓存', '智能替换', '命中率优化'],
+    },
+    {
+      title: 'CALK - 协作学习',
+      description: '演示智能体间的知识转移和协作学习',
+      code: `# CALK算法演示
+@program
+def collaborative_learning():
+    dsl = DSL()
+    
+    # 创建相似智能体组
+    agent_group = ["traffic_agent", "parking_agent", "safety_agent"]
+    
+    # 知识转移任务
+    for agent in agent_group:
+        task = dsl.gen(f"learn_from_{agent}",
+                      prompt=f"从{agent}学习最佳实践",
+                      agent=agent)
+                      .with_fallback("使用默认策略")
+                      .schedule()
+    
+    # 协作学习事件
+    dsl.on("knowledge_transfer", 
+           lambda data: update_agent_knowledge(data))
+    
+    dsl.on("performance_improvement",
+           lambda data: log_improvement(data))
+    
+    # 执行协作学习
+    dsl.run()
+    return dsl.get_history()`,
+      algorithm: 'CALK',
+      features: ['知识转移', '协作学习', '性能提升', '经验共享'],
+    },
+  ];
+
+  const handleRunDemo = (index) => {
+    setIsRunning(true);
+    setProgress(0);
+    setResults(prev => ({ ...prev, [index]: 'running' }));
+    
+    // 模拟执行过程，显示进度
+    const interval = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setResults(prev => ({ ...prev, [index]: 'completed' }));
+          setIsRunning(false);
+          return 100;
+        }
+        return prev + 10;
+      });
+    }, 200);
+  };
+
+  const handleShowDetails = (algorithm) => {
+    setSelectedAlgorithm(algorithm);
+    setShowDetails(true);
+  };
+
+  const handleCloseDetails = () => {
+    setShowDetails(false);
+    setSelectedAlgorithm(null);
+  };
+
+  return (
+    <Container maxWidth="lg">
+      <Box sx={{ py: 4 }}>
+        {/* Header */}
+        <Box sx={{ textAlign: 'center', mb: 6 }}>
+          <Typography
+            variant="h3"
+            component="h1"
+            gutterBottom
+            sx={{ fontWeight: 700 }}
+          >
+            DSL框架交互式演示
+          </Typography>
+          <Typography
+            variant="h6"
+            color="text.secondary"
+            sx={{ maxWidth: 800, mx: 'auto' }}
+          >
+            通过实际代码示例体验我们的三个核心创新算法：ATSLP、HCMPL和CALK
+          </Typography>
+        </Box>
+
+        {/* Algorithm Demonstrations */}
+        <Box sx={{ mb: 6 }}>
+          <Typography
+            variant="h4"
+            component="h2"
+            gutterBottom
+            sx={{ fontWeight: 600, mb: 4 }}
+          >
+            核心算法演示
+          </Typography>
+
+          <Stepper activeStep={activeStep} orientation="vertical">
+            {dslExamples.map((example, index) => (
+              <Step key={index}>
+                <StepLabel>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Chip
+                      label={example.algorithm}
+                      color="primary"
+                      size="small"
+                    />
+                    <Typography variant="h6">{example.title}</Typography>
+                  </Box>
+                </StepLabel>
+                <StepContent>
+                  <Card sx={{ mb: 3 }}>
+                    <CardContent>
+                      <Typography variant="body1" gutterBottom>
+                        {example.description}
+                      </Typography>
+                      
+                      <Box sx={{ my: 3 }}>
+                        <Typography variant="h6" gutterBottom>
+                          代码示例
+                        </Typography>
+                        <Paper
+                          elevation={1}
+                          sx={{
+                            backgroundColor: '#f5f5f5',
+                            overflow: 'auto',
+                            maxHeight: 400,
+                            p: 2,
+                          }}
+                        >
+                          <pre style={{ 
+                            fontFamily: 'Monaco, Consolas, "Courier New", monospace',
+                            fontSize: '0.9rem',
+                            margin: 0,
+                            whiteSpace: 'pre-wrap',
+                            wordBreak: 'break-word'
+                          }}>
+                            {example.code}
+                          </pre>
+                        </Paper>
+                      </Box>
+
+                      <Box sx={{ mb: 3 }}>
+                        <Typography variant="h6" gutterBottom>
+                          算法特性
+                        </Typography>
+                        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                          {example.features.map((feature, featureIndex) => (
+                            <Chip
+                              key={featureIndex}
+                              label={feature}
+                              size="small"
+                              variant="outlined"
+                            />
+                          ))}
+                        </Box>
+                      </Box>
+
+                      <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+                        <Button
+                          variant="contained"
+                          startIcon={<PlayIcon />}
+                          onClick={() => handleRunDemo(index)}
+                          disabled={isRunning}
+                          sx={{ minWidth: 120 }}
+                        >
+                          {results[index] === 'running' ? '运行中...' : '运行演示'}
+                        </Button>
+                        
+                        <Button
+                          variant="outlined"
+                          startIcon={<InfoIcon />}
+                          onClick={() => handleShowDetails(example)}
+                          sx={{ minWidth: 120 }}
+                        >
+                          查看详情
+                        </Button>
+                        
+                        {results[index] === 'running' && (
+                          <Box sx={{ flexGrow: 1, minWidth: 200 }}>
+                            <LinearProgress 
+                              variant="determinate" 
+                              value={progress} 
+                              sx={{ mb: 1 }}
+                            />
+                            <Typography variant="body2" color="text.secondary">
+                              执行进度: {progress}%
+                            </Typography>
+                          </Box>
+                        )}
+                        
+                        {results[index] === 'completed' && (
+                          <Alert severity="success" sx={{ flexGrow: 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <CheckCircleIcon />
+                              <Typography variant="body2">
+                                演示执行完成！{example.algorithm}算法运行成功。
+                              </Typography>
+                            </Box>
+                          </Alert>
+                        )}
+                      </Box>
+                    </CardContent>
+                  </Card>
+
+                  <Box sx={{ mb: 2 }}>
+                    <Button
+                      variant="contained"
+                      onClick={() => setActiveStep(index + 1)}
+                      sx={{ mr: 1 }}
+                    >
+                      下一步
+                    </Button>
+                    <Button
+                      onClick={() => setActiveStep(index - 1)}
+                      disabled={index === 0}
+                    >
+                      上一步
+                    </Button>
+                  </Box>
+                </StepContent>
+              </Step>
+            ))}
+          </Stepper>
+        </Box>
+      </Box>
+
+      {/* Algorithm Details Dialog */}
+      <Dialog 
+        open={showDetails} 
+        onClose={handleCloseDetails}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h5" sx={{ fontWeight: 600 }}>
+              {selectedAlgorithm?.title} - 详细说明
+            </Typography>
+            <IconButton onClick={handleCloseDetails}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          {selectedAlgorithm && (
+            <Box>
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+                算法描述
+              </Typography>
+              <Typography variant="body1" paragraph>
+                {selectedAlgorithm.description}
+              </Typography>
+
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mt: 3 }}>
+                核心特性
+              </Typography>
+              <Grid container spacing={2}>
+                {selectedAlgorithm.features.map((feature, index) => (
+                  <Grid item xs={6} key={index}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <CheckCircleIcon color="success" sx={{ fontSize: 20 }} />
+                      <Typography variant="body2">{feature}</Typography>
+                    </Box>
+                  </Grid>
+                ))}
+              </Grid>
+
+              <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mt: 3 }}>
+                代码实现
+              </Typography>
+              <Paper
+                elevation={1}
+                sx={{
+                  backgroundColor: '#f5f5f5',
+                  overflow: 'auto',
+                  maxHeight: 300,
+                  p: 2,
+                }}
+              >
+                <pre style={{ 
+                  fontFamily: 'Monaco, Consolas, "Courier New", monospace',
+                  fontSize: '0.9rem',
+                  margin: 0,
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word'
+                }}>
+                  {selectedAlgorithm.code}
+                </pre>
+              </Paper>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDetails} variant="outlined">
+            关闭
+          </Button>
+          <Button onClick={handleCloseDetails} variant="contained">
+            运行演示
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Container>
+  );
+}
 
 // 简化的首页组件
 function HomePage() {
@@ -239,6 +617,8 @@ function HomePage() {
 
 // 简化的导航栏
 function Navigation() {
+  const navigate = React.useNavigate();
+  
   return (
     <AppBar position="sticky" elevation={2}>
       <Toolbar sx={{ justifyContent: 'space-between' }}>
@@ -249,13 +629,13 @@ function Navigation() {
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button color="inherit" startIcon={<CodeIcon />}>
+          <Button color="inherit" startIcon={<CodeIcon />} onClick={() => navigate('/dsl-demo')}>
             DSL演示
           </Button>
-          <Button color="inherit" startIcon={<SchoolIcon />}>
+          <Button color="inherit" startIcon={<SchoolIcon />} onClick={() => navigate('/academic')}>
             学术论文
           </Button>
-          <Button color="inherit" startIcon={<DashboardIcon />}>
+          <Button color="inherit" startIcon={<DashboardIcon />} onClick={() => navigate('/dashboard')}>
             企业仪表板
           </Button>
         </Box>
@@ -273,7 +653,7 @@ function App() {
         <Navigation />
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/dsl-demo" element={<HomePage />} />
+          <Route path="/dsl-demo" element={<DSLDemoPage />} />
           <Route path="/academic" element={<HomePage />} />
           <Route path="/dashboard" element={<HomePage />} />
         </Routes>
