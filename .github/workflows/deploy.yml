@@ -40,6 +40,8 @@ jobs:
         run: |
           cd frontend
           npm run build
+        env:
+          REACT_APP_BACKEND_URL: https://multi-agent-dsl-backend.railway.app
           
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -81,6 +83,8 @@ jobs:
         run: |
           cd frontend
           npm run build
+        env:
+          REACT_APP_BACKEND_URL: https://multi-agent-dsl-backend.railway.app
           
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25

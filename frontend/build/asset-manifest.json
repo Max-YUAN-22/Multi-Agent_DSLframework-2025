@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "./static/js/main.29465ed5.js",
-    "index.html": "./index.html",
-    "main.29465ed5.js.map": "./static/js/main.29465ed5.js.map"
+    "main.js": "/Multi-Agent_DSLframework-2025/static/js/main.b882d95f.js",
+    "index.html": "/Multi-Agent_DSLframework-2025/index.html",
+    "main.b882d95f.js.map": "/Multi-Agent_DSLframework-2025/static/js/main.b882d95f.js.map"
   },
   "entrypoints": [
-    "static/js/main.29465ed5.js"
+    "static/js/main.b882d95f.js"
   ]
 }

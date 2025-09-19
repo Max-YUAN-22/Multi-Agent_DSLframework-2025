@@ -98,6 +98,8 @@ const enterpriseTheme = createTheme({
 
 // 企业级首页组件
 function EnterpriseHomePage() {
+  const [activeTab, setActiveTab] = React.useState(0);
+
   const coreFeatures = [
     {
       title: 'ATSLP算法',
@@ -396,13 +398,13 @@ function EnterpriseHomePage() {
             通过我们的交互式演示，深入了解多智能体DSL框架的强大功能和创新算法
           </Typography>
           <ButtonGroup variant="contained" size="large">
-            <Button startIcon={<CodeIcon />} sx={{ px: 4 }} href="https://multi-agent-ds-lframework-2025.vercel.app">
+            <Button startIcon={<CodeIcon />} sx={{ px: 4 }}>
               开始DSL演示
             </Button>
-            <Button startIcon={<ScienceIcon />} sx={{ px: 4 }} href="https://github.com/Max-YUAN-22/Multi-Agent_DSLframework-2025/tree/main/papers">
+            <Button startIcon={<ScienceIcon />} sx={{ px: 4 }}>
               查看学术论文
             </Button>
-            <Button startIcon={<BusinessIcon />} sx={{ px: 4 }} href="mailto:max.yuan@example.com">
+            <Button startIcon={<BusinessIcon />} sx={{ px: 4 }}>
               企业咨询
             </Button>
           </ButtonGroup>

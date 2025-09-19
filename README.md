@@ -38,11 +38,12 @@
 
 ### 方式一：在线体验（推荐）
 
-1. 访问部署地址：[https://multi-agent-ds-lframework-2025.vercel.app](https://multi-agent-ds-lframework-2025.vercel.app)
-2. 无需安装任何软件，直接在浏览器中使用
-3. 进入"系统设置"配置您的API密钥
-4. 返回"智能体交互"体验完整功能
-5. 查看"企业仪表板"监控系统状态
+1. **主要部署地址**: [https://multi-agent-ds-lframework-2025.vercel.app](https://multi-agent-ds-lframework-2025.vercel.app) ✅ 正常运行
+2. **备用部署地址**: [https://max-yuan-22.github.io/Multi-Agent_DSLframework-2025/](https://max-yuan-22.github.io/Multi-Agent_DSLframework-2025/) 🔄 检查中
+3. 无需安装任何软件，直接在浏览器中使用
+4. 进入"系统设置"配置您的API密钥
+5. 返回"智能体交互"体验完整功能
+6. 查看"企业仪表板"监控系统状态
 
 ### 方式二：自动部署
 
@@ -196,6 +197,13 @@ git push origin main
 ## 📄 许可证
 
 本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
+
+## 📄 学术论文
+
+- **📖 完整论文**: [CCF A类论文 - 多智能体DSL框架](papers/CCF_A_CLASS_PAPER_THEORETICAL_ENHANCED.tex)
+- **📊 实验数据**: [性能分析图表](paper_figures_final/)
+- **🔬 算法详解**: ATSLP、HCMPL、CALK三个创新算法
+- **📈 实验结果**: 2.17x吞吐量提升，1000+智能体支持
 
 ## 📞 技术支持
 
