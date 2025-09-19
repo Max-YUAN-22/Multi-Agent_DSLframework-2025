@@ -55,7 +55,7 @@ function SimpleApp() {
           onClick={() => {
             const info = {
               userAgent: navigator.userAgent,
-              screen: `${window.screen.width}x${window.screen.height}`,
+              screen: `${screen.width}x${screen.height}`,
               viewport: `${window.innerWidth}x${window.innerHeight}`,
               language: navigator.language,
               url: window.location.href
