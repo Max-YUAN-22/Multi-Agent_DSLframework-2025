@@ -1,4 +1,4 @@
-name: GitHub Pages Deploy
+name: Deploy to GitHub Pages
 
 on:
   push:
@@ -15,7 +15,10 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -28,12 +31,12 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
           
-      - name: Install Dependencies
+      - name: Install Frontend Dependencies
         run: |
           cd frontend
           npm ci
           
-      - name: Build Application
+      - name: Build Frontend
         run: |
           cd frontend
           npm run build
@@ -41,7 +44,7 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
         
-      - name: Upload Artifact
+      - name: Upload Frontend Artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: frontend/build
@@ -50,14 +53,7 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
         
-      - name: Deployment Success
+      - name: GitHub Pages Deployment Status
         run: |
-          echo "🎉 部署成功！"
-          echo "🌐 GitHub Pages: https://max-yuan-22.github.io/Multi-Agent_DSLframework-2025/"
-          echo "📱 应用功能："
-          echo "  - 🏠 首页：项目介绍和性能指标"
-          echo "  - 💻 DSL演示：ATSLP、HCMPL、CALK算法演示"
-          echo "  - 🤖 智能体管理：12个智能体管理界面"
-          echo "  - 📊 交互记录：智能体协作历史"
-          echo "  - 📚 学术论文：研究成果展示"
-          echo "  - 📈 企业仪表板：实时系统监控"
+          echo "✅ GitHub Pages deployed successfully!"
+          echo "🌐 Access: https://max-yuan-22.github.io/Multi-Agent_DSLframework-2025/"
