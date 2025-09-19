@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { Box, Typography, Container, AppBar, Toolbar, Button, Card, CardContent, Grid, Chip, Paper, Stepper, Step, StepLabel, StepContent, Alert, LinearProgress, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Avatar, List, ListItem, ListItemAvatar, ListItemText, ListItemSecondaryAction, Switch, FormControlLabel, TextField, Divider, Badge, Tooltip, Fab } from '@mui/material';
-import { Science as ScienceIcon, Code as CodeIcon, School as SchoolIcon, Dashboard as DashboardIcon, PlayArrow as PlayIcon, CheckCircle as CheckCircleIcon, Close as CloseIcon, Info as InfoIcon, Group as GroupIcon, History as HistoryIcon, Settings as SettingsIcon, Chat as ChatIcon, Send as SendIcon, Visibility as VisibilityIcon, VisibilityOff as VisibilityOffIcon, Refresh as RefreshIcon, Add as AddIcon } from '@mui/icons-material';
+import { Box, Typography, Container, AppBar, Toolbar, Button, Card, CardContent, Grid, Chip, Paper, Stepper, Step, StepLabel, StepContent, Alert, LinearProgress, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Avatar, List, ListItem, ListItemAvatar, ListItemText, ListItemSecondaryAction, Switch, FormControlLabel, Divider, Fab } from '@mui/material';
+import { Science as ScienceIcon, Code as CodeIcon, School as SchoolIcon, Dashboard as DashboardIcon, PlayArrow as PlayIcon, CheckCircle as CheckCircleIcon, Close as CloseIcon, Info as InfoIcon, Group as GroupIcon, History as HistoryIcon, Settings as SettingsIcon, Chat as ChatIcon, Visibility as VisibilityIcon, Add as AddIcon } from '@mui/icons-material';
 
 // 创建企业级主题
 const theme = createTheme({
@@ -1633,6 +1633,7 @@ function EnterpriseDashboard() {
     errorRate: 0.1
   });
 
+  // eslint-disable-next-line no-unused-vars
   const [recentActivities, setRecentActivities] = React.useState([
     { id: 1, type: 'task_completed', agent: 'Weather Agent', description: '完成天气数据更新任务', timestamp: '2分钟前', status: 'success' },
     { id: 2, type: 'agent_started', agent: 'Traffic Agent', description: '交通管理智能体启动', timestamp: '5分钟前', status: 'info' },
@@ -1641,6 +1642,7 @@ function EnterpriseDashboard() {
     { id: 5, type: 'system_alert', agent: 'System', description: '系统性能优化建议', timestamp: '15分钟前', status: 'info' }
   ]);
 
+  // eslint-disable-next-line no-unused-vars
   const [performanceData, setPerformanceData] = React.useState([
     { time: '00:00', throughput: 120, latency: 45, errors: 0 },
     { time: '04:00', throughput: 95, latency: 52, errors: 1 },
