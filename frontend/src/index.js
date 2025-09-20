@@ -94,7 +94,10 @@ const translations = {
     aiThinking: "AI正在思考中...",
     dslFramework: "DSL框架",
     intelligentAgents: "智能体",
-    scheduler: "调度器"
+    scheduler: "调度器",
+    exploreTechnology: "探索技术",
+    liveDashboard: "实时仪表板",
+    coreAlgorithmsSubtitle: "三种革命性算法和谐协作，提供前所未有的性能"
   },
   en: {
     title: "Multi-Agent DSL Framework",
@@ -162,7 +165,10 @@ const translations = {
     aiThinking: "AI is thinking...",
     dslFramework: "DSL Framework",
     intelligentAgents: "Intelligent Agents",
-    scheduler: "Scheduler"
+    scheduler: "Scheduler",
+    exploreTechnology: "Explore Technology",
+    liveDashboard: "Live Dashboard",
+    coreAlgorithmsSubtitle: "Three revolutionary algorithms working in harmony to deliver unprecedented performance"
   }
 };
 
@@ -1640,11 +1646,11 @@ function HomePage() {
     agentSupport: 1000
   });
 
-  const [features] = React.useState([
+  const features = React.useMemo(() => [
     {
       id: 'atslp',
       title: 'ATSLP Algorithm',
-      description: 'Adaptive Task Scheduling & Load Prediction with 2.17x throughput improvement',
+      description: t('atslpDescription'),
       icon: <DashboardIcon sx={{ fontSize: 40 }} />,
       color: 'primary.main',
       gradient: 'linear-gradient(135deg, #0D47A1 0%, #1976D2 100%)',
@@ -1653,7 +1659,7 @@ function HomePage() {
     {
       id: 'hcmpl',
       title: 'HCMPL Algorithm',
-      description: 'Hierarchical Cache Management & Pattern Learning with 85%+ cache hit rate',
+      description: t('hcmplDescription'),
       icon: <ScienceIcon sx={{ fontSize: 40 }} />,
       color: 'secondary.main',
       gradient: 'linear-gradient(135deg, #E65100 0%, #FF9800 100%)',
@@ -1662,13 +1668,13 @@ function HomePage() {
     {
       id: 'calk',
       title: 'CALK Algorithm',
-      description: 'Collaborative Agent Learning & Knowledge Transfer with 40-60% latency reduction',
+      description: t('calkDescription'),
       icon: <SchoolIcon sx={{ fontSize: 40 }} />,
       color: 'success.main',
       gradient: 'linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%)',
       metrics: ['60% Latency Cut', 'Knowledge Sharing', 'Continuous Learning']
     }
-  ]);
+  ], [t]);
 
   const handleAlgorithmClick = (algorithm) => {
     setSelectedAlgorithm(algorithm);
@@ -1714,7 +1720,7 @@ function HomePage() {
                 textShadow: '0 2px 4px rgba(0,0,0,0.3)',
                 mb: 3
               }}>
-                Multi-Agent DSL Framework
+                {t('title')}
               </Typography>
               <Typography variant="h4" component="h2" sx={{
                 opacity: 0.95,
@@ -1723,7 +1729,7 @@ function HomePage() {
                 maxWidth: '800px',
                 mx: 'auto'
               }}>
-                Enterprise-Grade Adaptive Scheduling & Collaborative Learning Solution
+                {t('subtitle')}
               </Typography>
               <Typography variant="h6" sx={{
                 opacity: 0.8,
@@ -1732,8 +1738,7 @@ function HomePage() {
                 mx: 'auto',
                 lineHeight: 1.6
               }}>
-                Revolutionizing multi-agent systems with cutting-edge algorithms for optimal performance,
-                intelligent caching, and collaborative learning capabilities.
+                {t('description')}
               </Typography>
 
               {/* CTA Buttons */}
@@ -1756,7 +1761,7 @@ function HomePage() {
                     }
                   }}
                 >
-                  Explore Technology
+                  {t('exploreTechnology')}
                 </Button>
                 <Button
                   variant="outlined"
@@ -1774,7 +1779,7 @@ function HomePage() {
                     }
                   }}
                 >
-                  Live Dashboard
+                  {t('liveDashboard')}
                 </Button>
               </Box>
             </Box>
@@ -1789,7 +1794,7 @@ function HomePage() {
                     {stats.throughput}x
                   </Typography>
                   <Typography variant="body1" sx={{ opacity: 0.8 }}>
-                    Throughput Boost
+                    {t('throughputBoost')}
                   </Typography>
                 </Box>
               </Grid>
@@ -1799,7 +1804,7 @@ function HomePage() {
                     {stats.cacheHitRate}%
                   </Typography>
                   <Typography variant="body1" sx={{ opacity: 0.8 }}>
-                    Cache Hit Rate
+                    {t('cacheHitRate')}
                   </Typography>
                 </Box>
               </Grid>
@@ -1809,7 +1814,7 @@ function HomePage() {
                     {stats.latencyReduction}%
                   </Typography>
                   <Typography variant="body1" sx={{ opacity: 0.8 }}>
-                    Latency Reduction
+                    {t('latencyReduction')}
                   </Typography>
                 </Box>
               </Grid>
@@ -1819,7 +1824,7 @@ function HomePage() {
                     {stats.agentSupport.toLocaleString()}+
                   </Typography>
                   <Typography variant="body1" sx={{ opacity: 0.8 }}>
-                    Agents Supported
+                    {t('agentsSupported')}
                   </Typography>
                 </Box>
               </Grid>
@@ -1835,10 +1840,10 @@ function HomePage() {
             color: 'primary.main',
             fontWeight: 600
           }}>
-            Core Technologies
+            {t('coreFeatures')}
           </Typography>
           <Typography variant="h6" color="text.secondary" sx={{ maxWidth: '600px', mx: 'auto' }}>
-            Three revolutionary algorithms working in harmony to deliver unprecedented performance
+            {t('coreAlgorithmsSubtitle')}
           </Typography>
         </Box>
 
