@@ -1,11 +1,7 @@
 {
   "version": 2,
   "name": "multi-agent-dsl-framework-2025-final",
-  "buildCommand": "npm install && npm run build",
-  "outputDirectory": "build",
-  "installCommand": "npm install",
-  "framework": "create-react-app",
-  "cwd": "frontend",
+  "public": true,
   "rewrites": [
     {
       "source": "/(.*)",
