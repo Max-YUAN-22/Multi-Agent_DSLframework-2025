@@ -4510,8 +4510,15 @@ function KnowledgeGraphPage() {
 
       <Grid container spacing={3}>
         {/* 控制面板 - 在移动设备上显示在顶部 */}
-        <Grid item xs={12} md={4} sx={{ order: { xs: 1, md: 2 } }}>
-          <Card sx={{ mb: 2, position: 'sticky', top: 20 }}>
+        <Grid item xs={12} md={4} sx={{ order: { xs: 1, md: 2 }, position: 'relative' }}>
+          <Card sx={{
+            mb: 2,
+            position: 'sticky',
+            top: 80,
+            zIndex: 10,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+            border: '1px solid rgba(0,0,0,0.08)'
+          }}>
             <CardContent>
               <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', fontWeight: 600 }}>
                 Graph Controls
@@ -4524,7 +4531,15 @@ function KnowledgeGraphPage() {
                 placeholder="Search nodes and descriptions..."
                 value={searchTerm}
                 onChange={handleSearchChange}
-                sx={{ mb: 2 }}
+                sx={{
+                  mb: 2,
+                  '& .MuiOutlinedInput-root': {
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 255, 255, 1)',
+                    }
+                  }
+                }}
                 InputProps={{
                   startAdornment: (
                     <Box sx={{ mr: 1, color: 'text.secondary' }}>
