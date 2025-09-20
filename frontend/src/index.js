@@ -364,27 +364,48 @@ function LanguageSwitcher() {
   const { language, switchLanguage } = React.useContext(LanguageContext);
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-      <LanguageIcon sx={{ color: 'white' }} />
+    <Box sx={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 1,
+      ml: 2,
+      px: 1,
+      py: 0.5,
+      borderRadius: 1,
+      border: '1px solid rgba(255, 255, 255, 0.3)',
+      '&:hover': {
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        borderColor: 'rgba(255, 255, 255, 0.5)',
+      }
+    }}>
+      <LanguageIcon sx={{ color: 'white', fontSize: 20 }} />
       <Select
         value={language}
         onChange={(e) => switchLanguage(e.target.value)}
         size="small"
+        variant="standard"
         sx={{
           color: 'white',
-          '.MuiOutlinedInput-notchedOutline': {
-            borderColor: 'rgba(255, 255, 255, 0.3)',
+          minWidth: 80,
+          '.MuiSelect-select': {
+            paddingRight: '24px !important',
+          },
+          '.MuiInput-underline:before': {
+            borderBottom: 'none',
+          },
+          '.MuiInput-underline:after': {
+            borderBottom: 'none',
+          },
+          '.MuiInput-underline:hover:before': {
+            borderBottom: 'none',
           },
           '.MuiSvgIcon-root': {
             color: 'white',
           },
-          '&:hover .MuiOutlinedInput-notchedOutline': {
-            borderColor: 'rgba(255, 255, 255, 0.5)',
-          },
         }}
       >
-        <MenuItem value="zh">中文</MenuItem>
-        <MenuItem value="en">English</MenuItem>
+        <MenuItem value="zh">🇨🇳 中文</MenuItem>
+        <MenuItem value="en">🇺🇸 English</MenuItem>
       </Select>
     </Box>
   );
