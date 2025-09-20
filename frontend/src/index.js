@@ -108,6 +108,23 @@ const translations = {
     offlineMode: "离线模式",
     active: "活跃",
     warning: "警告",
+    chatWithAgent: "与智能体对话",
+    restartAgent: "重启智能体",
+    optimizeAgent: "优化智能体",
+    assignTask: "分配任务",
+    customTask: "自定义任务",
+    executeTask: "执行任务",
+    taskTitle: "任务标题",
+    taskDescription: "任务描述",
+    taskPriority: "任务优先级",
+    high: "高",
+    medium: "中",
+    low: "低",
+    urgent: "紧急",
+    cancel: "取消",
+    createTask: "创建任务",
+    assignTaskTo: "为 {name} 分配自定义任务",
+    chatWith: "与 {name} 对话",
     dslCodeExample: `// 多智能体DSL代码示例
 agent WeatherAgent {
   capability: ["weather_prediction", "climate_analysis"]
@@ -238,6 +255,23 @@ workflow SmartCityWorkflow {
     offlineMode: "Offline Mode",
     active: "Active",
     warning: "Warning",
+    chatWithAgent: "Chat with Agent",
+    restartAgent: "Restart Agent",
+    optimizeAgent: "Optimize Agent",
+    assignTask: "Assign Task",
+    customTask: "Custom Task",
+    executeTask: "Execute Task",
+    taskTitle: "Task Title",
+    taskDescription: "Task Description",
+    taskPriority: "Task Priority",
+    high: "High",
+    medium: "Medium",
+    low: "Low",
+    urgent: "Urgent",
+    cancel: "Cancel",
+    createTask: "Create Task",
+    assignTaskTo: "Assign Custom Task to {name}",
+    chatWith: "Chat with {name}",
     dslCodeExample: `// Multi-Agent DSL Code Example
 agent WeatherAgent {
   capability: ["weather_prediction", "climate_analysis"]
@@ -1486,7 +1520,7 @@ function AgentsPage() {
                         setCustomTaskDialog(true);
                       }}
                     >
-                      分配任务
+                      {t('assignTask')}
                     </Button>
                     <Button
                       size="small"
@@ -1504,7 +1538,7 @@ function AgentsPage() {
                         setAgentChatDialog(true);
                       }}
                     >
-                      对话
+                      {t('chatWithAgent')}
                     </Button>
                     <IconButton
                       size="small"
@@ -1512,7 +1546,7 @@ function AgentsPage() {
                         e.stopPropagation();
                         handleQuickAction(agent, 'restart');
                       }}
-                      title="重启"
+                      title={t('restartAgent')}
                     >
                       <RestartAltIcon fontSize="small" />
                     </IconButton>
@@ -1522,7 +1556,7 @@ function AgentsPage() {
                         e.stopPropagation();
                         handleQuickAction(agent, 'optimize');
                       }}
-                      title="优化"
+                      title={t('optimizeAgent')}
                     >
                       <TuneIcon fontSize="small" />
                     </IconButton>
@@ -1590,13 +1624,13 @@ function AgentsPage() {
       {/* 自定义任务对话框 */}
       <Dialog open={customTaskDialog} onClose={() => setCustomTaskDialog(false)} maxWidth="sm" fullWidth>
         <DialogTitle>
-          为 {selectedAgent?.name} 分配自定义任务
+          {selectedAgent && t('assignTaskTo').replace('{name}', selectedAgent.name)}
         </DialogTitle>
         <DialogContent>
           <Box sx={{ mt: 2 }}>
             <TextField
               fullWidth
-              label="任务标题"
+              label={t('taskTitle')}
               value={taskTitle}
               onChange={(e) => setTaskTitle(e.target.value)}
               sx={{ mb: 2 }}
@@ -1605,30 +1639,30 @@ function AgentsPage() {
               fullWidth
               multiline
               rows={3}
-              label="任务描述"
+              label={t('taskDescription')}
               value={taskDescription}
               onChange={(e) => setTaskDescription(e.target.value)}
               sx={{ mb: 2 }}
             />
             <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel>优先级</InputLabel>
+              <InputLabel>{t('taskPriority')}</InputLabel>
               <Select
                 value={taskPriority}
-                label="优先级"
+                label={t('taskPriority')}
                 onChange={(e) => setTaskPriority(e.target.value)}
               >
-                <MenuItem value="low">低</MenuItem>
-                <MenuItem value="medium">中</MenuItem>
-                <MenuItem value="high">高</MenuItem>
-                <MenuItem value="urgent">紧急</MenuItem>
+                <MenuItem value="low">{t('low')}</MenuItem>
+                <MenuItem value="medium">{t('medium')}</MenuItem>
+                <MenuItem value="high">{t('high')}</MenuItem>
+                <MenuItem value="urgent">{t('urgent')}</MenuItem>
               </Select>
             </FormControl>
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setCustomTaskDialog(false)}>取消</Button>
+          <Button onClick={() => setCustomTaskDialog(false)}>{t('cancel')}</Button>
           <Button onClick={handleCreateTask} variant="contained" disabled={!taskTitle.trim()}>
-            创建任务
+            {t('createTask')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -1636,7 +1670,7 @@ function AgentsPage() {
       {/* 智能体对话框 */}
       <Dialog open={agentChatDialog} onClose={() => setAgentChatDialog(false)} maxWidth="md" fullWidth>
         <DialogTitle>
-          与 {selectedAgent?.name} 对话
+          {selectedAgent && t('chatWith').replace('{name}', selectedAgent.name)}
         </DialogTitle>
         <DialogContent>
           <Box sx={{ height: 400, overflow: 'auto', border: '1px solid #e0e0e0', borderRadius: 1, p: 2, mb: 2 }}>
