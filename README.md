@@ -1,8 +1,17 @@
-# Multi-Agent DSL Framework - Enterprise Edition
+# 🤖 Multi-Agent DSL Framework - Enterprise Edition
 
-🚀 **Advanced Multi-Agent System with Domain Specific Language Support**
+[![GitHub Pages](https://img.shields.io/badge/🌐_Live_Demo-GitHub_Pages-brightgreen?style=for-the-badge)](https://max-yuan-22.github.io/Multi-Agent_DSLframework-2025/)
+[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen?style=for-the-badge)](https://github.com/Max-YUAN-22/Multi-Agent_DSLframework-2025/actions)
+
+> **🚀 Advanced Multi-Agent System with Domain Specific Language Support**
 
 A cutting-edge enterprise-grade framework for managing and orchestrating multiple intelligent agents with real-time collaboration capabilities.
+
+## 🎯 **Live Demo**
+
+**🌐 主要部署**: https://max-yuan-22.github.io/Multi-Agent_DSLframework-2025/
+
+> 完全交互式企业级多智能体DSL框架，支持中英文切换、实时智能体交互、任务分配和协作学习可视化。
 
 ## 🌟 Key Features
 
