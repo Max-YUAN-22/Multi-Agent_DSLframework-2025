@@ -8,14 +8,21 @@ import {
   Grid, Chip, Paper, Stepper, Step, StepLabel, StepContent, Alert, 
   LinearProgress, Dialog, DialogTitle, DialogContent, DialogActions, 
   IconButton, Avatar, List, ListItem, ListItemAvatar, ListItemText, 
-  ListItemSecondaryAction, Switch, FormControlLabel, Divider, Fab
+  ListItemSecondaryAction, Switch, FormControlLabel, Divider, Fab,
+  Fade, Slide, Zoom, Grow, Collapse, Skeleton, CircularProgress,
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Tabs, Tab, Accordion, AccordionSummary, AccordionDetails,
+  Snackbar, Alert as MuiAlert, Badge, Tooltip
 } from '@mui/material';
 import { 
   Science as ScienceIcon, Code as CodeIcon, School as SchoolIcon, 
   Dashboard as DashboardIcon, PlayArrow as PlayIcon, CheckCircle as CheckCircleIcon, 
   Close as CloseIcon, Info as InfoIcon, Group as GroupIcon, History as HistoryIcon, 
   Settings as SettingsIcon, Chat as ChatIcon, Visibility as VisibilityIcon, 
-  Add as AddIcon
+  Add as AddIcon, ExpandMore as ExpandMoreIcon, Refresh as RefreshIcon,
+  TrendingUp as TrendingUpIcon, Memory as MemoryIcon, Speed as SpeedIcon,
+  Security as SecurityIcon, Cloud as CloudIcon, Analytics as AnalyticsIcon,
+  Timeline as TimelineIcon, Assessment as AssessmentIcon, ShowChart as ShowChartIcon
 } from '@mui/icons-material';
 import { io } from 'socket.io-client';
 
@@ -23,9 +30,77 @@ import { io } from 'socket.io-client';
 const theme = createTheme({
   palette: {
     mode: 'light',
-    primary: { main: '#1976d2' },
-    secondary: { main: '#dc004e' },
-    background: { default: '#f5f5f5', paper: '#ffffff' },
+    primary: { 
+      main: '#1976d2',
+      light: '#42a5f5',
+      dark: '#1565c0',
+    },
+    secondary: { 
+      main: '#dc004e',
+      light: '#ff5983',
+      dark: '#9a0036',
+    },
+    background: { 
+      default: '#f5f5f5', 
+      paper: '#ffffff' 
+    },
+    success: { main: '#4caf50' },
+    warning: { main: '#ff9800' },
+    error: { main: '#f44336' },
+    info: { main: '#2196f3' },
+  },
+  typography: {
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    h1: {
+      fontSize: '2.5rem',
+      fontWeight: 600,
+      lineHeight: 1.2,
+    },
+    h2: {
+      fontSize: '2rem',
+      fontWeight: 600,
+      lineHeight: 1.3,
+    },
+    h3: {
+      fontSize: '1.75rem',
+      fontWeight: 500,
+      lineHeight: 1.4,
+    },
+    h4: {
+      fontSize: '1.5rem',
+      fontWeight: 500,
+      lineHeight: 1.4,
+    },
+  },
+  components: {
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          '&:hover': {
+            transform: 'translateY(-4px)',
+            boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
+          },
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          transition: 'all 0.2s ease-in-out',
+          '&:hover': {
+            transform: 'translateY(-1px)',
+          },
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          transition: 'all 0.2s ease-in-out',
+        },
+      },
+    },
   },
 });
 
@@ -149,24 +224,29 @@ function Navigation() {
   );
 }
 
-// 智能体管理页面（带实时更新）
+// 智能体管理页面（带实时更新和动画效果）
 function AgentsPage() {
   const [agents, setAgents] = React.useState([
-    { id: 1, name: 'Weather Agent', status: 'active', avatar: '🌤️', tasks: 23, efficiency: 96 },
-    { id: 2, name: 'Traffic Agent', status: 'active', avatar: '🚦', tasks: 45, efficiency: 94 },
-    { id: 3, name: 'Parking Agent', status: 'active', avatar: '🅿️', tasks: 18, efficiency: 98 },
-    { id: 4, name: 'Safety Agent', status: 'warning', avatar: '🛡️', tasks: 12, efficiency: 89 },
-    { id: 5, name: 'EMS Agent', status: 'active', avatar: '🏥', tasks: 8, efficiency: 95 },
-    { id: 6, name: 'Enforcement Agent', status: 'active', avatar: '🚨', tasks: 15, efficiency: 92 },
-    { id: 7, name: 'Sanitation Agent', status: 'active', avatar: '🧹', tasks: 22, efficiency: 97 },
-    { id: 8, name: 'Sprinkler Agent', status: 'active', avatar: '💧', tasks: 6, efficiency: 99 },
-    { id: 9, name: 'AutoDrive Agent', status: 'active', avatar: '🚗', tasks: 35, efficiency: 93 },
-    { id: 10, name: 'City Manager Agent', status: 'active', avatar: '🏙️', tasks: 28, efficiency: 96 },
-    { id: 11, name: 'Perception Agent', status: 'active', avatar: '👁️', tasks: 41, efficiency: 94 },
-    { id: 12, name: 'Analytics Agent', status: 'active', avatar: '📊', tasks: 19, efficiency: 97 },
+    { id: 1, name: 'Weather Agent', status: 'active', avatar: '🌤️', tasks: 23, efficiency: 96, cpu: 45, memory: 67, lastUpdate: Date.now() },
+    { id: 2, name: 'Traffic Agent', status: 'active', avatar: '🚦', tasks: 45, efficiency: 94, cpu: 52, memory: 73, lastUpdate: Date.now() },
+    { id: 3, name: 'Parking Agent', status: 'active', avatar: '🅿️', tasks: 18, efficiency: 98, cpu: 38, memory: 45, lastUpdate: Date.now() },
+    { id: 4, name: 'Safety Agent', status: 'warning', avatar: '🛡️', tasks: 12, efficiency: 89, cpu: 67, memory: 82, lastUpdate: Date.now() },
+    { id: 5, name: 'EMS Agent', status: 'active', avatar: '🏥', tasks: 8, efficiency: 95, cpu: 41, memory: 58, lastUpdate: Date.now() },
+    { id: 6, name: 'Enforcement Agent', status: 'active', avatar: '🚨', tasks: 15, efficiency: 92, cpu: 49, memory: 61, lastUpdate: Date.now() },
+    { id: 7, name: 'Sanitation Agent', status: 'active', avatar: '🧹', tasks: 22, efficiency: 97, cpu: 43, memory: 55, lastUpdate: Date.now() },
+    { id: 8, name: 'Sprinkler Agent', status: 'active', avatar: '💧', tasks: 6, efficiency: 99, cpu: 35, memory: 42, lastUpdate: Date.now() },
+    { id: 9, name: 'AutoDrive Agent', status: 'active', avatar: '🚗', tasks: 35, efficiency: 93, cpu: 58, memory: 71, lastUpdate: Date.now() },
+    { id: 10, name: 'City Manager Agent', status: 'active', avatar: '🏙️', tasks: 28, efficiency: 96, cpu: 46, memory: 63, lastUpdate: Date.now() },
+    { id: 11, name: 'Perception Agent', status: 'active', avatar: '👁️', tasks: 41, efficiency: 94, cpu: 54, memory: 68, lastUpdate: Date.now() },
+    { id: 12, name: 'Analytics Agent', status: 'active', avatar: '📊', tasks: 19, efficiency: 97, cpu: 39, memory: 52, lastUpdate: Date.now() },
   ]);
 
   const [wsConnected, setWsConnected] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [selectedAgent, setSelectedAgent] = React.useState(null);
+  const [agentDetailsOpen, setAgentDetailsOpen] = React.useState(false);
+  const [animatingAgents, setAnimatingAgents] = React.useState(new Set());
+  const [recentActivities, setRecentActivities] = React.useState([]);
 
   React.useEffect(() => {
     // 连接WebSocket
@@ -190,33 +270,64 @@ function AgentsPage() {
         setAgents(prevAgents => 
           prevAgents.map(agent => 
             agent.id === data.agentId 
-              ? { ...agent, ...data.update }
+              ? { ...agent, ...data.update, lastUpdate: Date.now() }
               : agent
           )
         );
       }
     });
 
-    // 模拟实时数据更新
+    // 模拟实时数据更新和动画效果
     const interval = setInterval(() => {
       const randomAgent = agents[Math.floor(Math.random() * agents.length)];
       const newTasks = Math.max(0, randomAgent.tasks + Math.floor(Math.random() * 3) - 1);
       const newEfficiency = Math.max(80, Math.min(100, randomAgent.efficiency + Math.floor(Math.random() * 6) - 3));
+      const newCpu = Math.max(20, Math.min(90, randomAgent.cpu + Math.floor(Math.random() * 10) - 5));
+      const newMemory = Math.max(30, Math.min(95, randomAgent.memory + Math.floor(Math.random() * 8) - 4));
+      
+      // 添加动画效果
+      setAnimatingAgents(prev => new Set([...prev, randomAgent.id]));
+      
+      // 添加活动记录
+      const activity = {
+        id: Date.now(),
+        agent: randomAgent.name,
+        action: '数据更新',
+        time: new Date().toLocaleString('zh-CN'),
+        type: 'update'
+      };
+      setRecentActivities(prev => [activity, ...prev.slice(0, 4)]);
       
       setAgents(prevAgents => 
         prevAgents.map(agent => 
           agent.id === randomAgent.id 
-            ? { ...agent, tasks: newTasks, efficiency: newEfficiency }
+            ? { 
+                ...agent, 
+                tasks: newTasks, 
+                efficiency: newEfficiency, 
+                cpu: newCpu, 
+                memory: newMemory,
+                lastUpdate: Date.now()
+              }
             : agent
         )
       );
-    }, 3000);
+      
+      // 清除动画效果
+      setTimeout(() => {
+        setAnimatingAgents(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(randomAgent.id);
+          return newSet;
+        });
+      }, 1000);
+    }, 2000);
 
     return () => {
       clearInterval(interval);
       wsManager.disconnect();
     };
-  }, []);
+  }, [agents]);
 
   const handleAgentClick = (agent) => {
     // 发送WebSocket消息
@@ -241,49 +352,171 @@ function AgentsPage() {
         />
       </Box>
       
-      <Grid container spacing={2}>
-        {agents.map((agent) => (
+      <Grid container spacing={3}>
+        {agents.map((agent, index) => (
           <Grid item xs={12} sm={6} md={4} key={agent.id}>
-            <Card 
-              sx={{ 
-                cursor: 'pointer',
-                transition: 'transform 0.2s ease-in-out',
-                '&:hover': {
-                  transform: 'translateY(-4px)',
-                }
-              }}
-              onClick={() => handleAgentClick(agent)}
-            >
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                  <Avatar sx={{ mr: 2, fontSize: '1.5rem' }}>
-                    {agent.avatar}
-                  </Avatar>
-                  <Box>
-                    <Typography variant="h6">{agent.name}</Typography>
-                    <Chip 
-                      label={agent.status} 
-                      color={agent.status === 'active' ? 'success' : 'warning'}
-                      size="small"
+            <Fade in={true} timeout={300 + index * 100}>
+              <Card 
+                sx={{ 
+                  cursor: 'pointer',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  background: animatingAgents.has(agent.id) 
+                    ? 'linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%)'
+                    : 'white',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    left: '-100%',
+                    width: '100%',
+                    height: '100%',
+                    background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)',
+                    transition: 'left 0.5s',
+                    ...(animatingAgents.has(agent.id) && {
+                      left: '100%',
+                    }),
+                  },
+                }}
+                onClick={() => handleAgentClick(agent)}
+              >
+                <CardContent>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <Zoom in={true} timeout={500 + index * 100}>
+                      <Avatar 
+                        sx={{ 
+                          mr: 2, 
+                          fontSize: '1.5rem',
+                          background: animatingAgents.has(agent.id) 
+                            ? 'linear-gradient(45deg, #2196f3, #21cbf3)'
+                            : 'linear-gradient(45deg, #1976d2, #42a5f5)',
+                          animation: animatingAgents.has(agent.id) ? 'pulse 1s ease-in-out' : 'none',
+                          '@keyframes pulse': {
+                            '0%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.1)' },
+                            '100%': { transform: 'scale(1)' },
+                          },
+                        }}
+                      >
+                        {agent.avatar}
+                      </Avatar>
+                    </Zoom>
+                    <Box>
+                      <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        {agent.name}
+                      </Typography>
+                      <Chip 
+                        label={agent.status} 
+                        color={agent.status === 'active' ? 'success' : 'warning'}
+                        size="small"
+                        sx={{ 
+                          animation: animatingAgents.has(agent.id) ? 'glow 1s ease-in-out' : 'none',
+                          '@keyframes glow': {
+                            '0%': { boxShadow: '0 0 5px rgba(76, 175, 80, 0.5)' },
+                            '50%': { boxShadow: '0 0 20px rgba(76, 175, 80, 0.8)' },
+                            '100%': { boxShadow: '0 0 5px rgba(76, 175, 80, 0.5)' },
+                          },
+                        }}
+                      />
+                    </Box>
+                  </Box>
+                  
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                      任务数量: <strong>{agent.tasks}</strong>
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                      效率: <strong>{agent.efficiency}%</strong>
+                    </Typography>
+                    <LinearProgress 
+                      variant="determinate" 
+                      value={agent.efficiency} 
+                      sx={{ 
+                        mt: 1,
+                        height: 8,
+                        borderRadius: 4,
+                        backgroundColor: 'rgba(0,0,0,0.1)',
+                        '& .MuiLinearProgress-bar': {
+                          borderRadius: 4,
+                          background: 'linear-gradient(90deg, #4caf50, #8bc34a)',
+                        },
+                      }}
                     />
                   </Box>
-                </Box>
-                <Typography variant="body2" color="text.secondary">
-                  任务数量: {agent.tasks}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  效率: {agent.efficiency}%
-                </Typography>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={agent.efficiency} 
-                  sx={{ mt: 1 }}
-                />
-              </CardContent>
-            </Card>
+
+                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                    <Chip 
+                      label={`CPU: ${agent.cpu}%`} 
+                      size="small" 
+                      color={agent.cpu > 80 ? 'error' : agent.cpu > 60 ? 'warning' : 'success'}
+                      variant="outlined"
+                    />
+                    <Chip 
+                      label={`内存: ${agent.memory}%`} 
+                      size="small" 
+                      color={agent.memory > 80 ? 'error' : agent.memory > 60 ? 'warning' : 'success'}
+                      variant="outlined"
+                    />
+                  </Box>
+
+                  {animatingAgents.has(agent.id) && (
+                    <Box sx={{ 
+                      position: 'absolute', 
+                      top: 8, 
+                      right: 8,
+                      animation: 'spin 1s linear infinite',
+                      '@keyframes spin': {
+                        '0%': { transform: 'rotate(0deg)' },
+                        '100%': { transform: 'rotate(360deg)' },
+                      },
+                    }}>
+                      <CircularProgress size={20} />
+                    </Box>
+                  )}
+                </CardContent>
+              </Card>
+            </Fade>
           </Grid>
         ))}
       </Grid>
+
+      {/* 最近活动 */}
+      {recentActivities.length > 0 && (
+        <Fade in={true} timeout={500}>
+          <Card sx={{ mt: 3, background: 'linear-gradient(135deg, #f5f5f5 0%, #e8f5e8 100%)' }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <TimelineIcon color="primary" />
+                最近活动
+              </Typography>
+              <List dense>
+                {recentActivities.map((activity, index) => (
+                  <Slide direction="up" in={true} timeout={300 + index * 100} key={activity.id}>
+                    <ListItem>
+                      <Avatar sx={{ mr: 2, bgcolor: 'primary.main' }}>
+                        {activity.agent.includes('Weather') ? '🌤️' : 
+                         activity.agent.includes('Traffic') ? '🚦' :
+                         activity.agent.includes('Parking') ? '🅿️' :
+                         activity.agent.includes('Safety') ? '🛡️' : '🏥'}
+                      </Avatar>
+                      <ListItemText
+                        primary={activity.agent}
+                        secondary={`${activity.action} - ${activity.time}`}
+                      />
+                      <Chip 
+                        label="实时" 
+                        color="success" 
+                        size="small"
+                        sx={{ animation: 'pulse 2s infinite' }}
+                      />
+                    </ListItem>
+                  </Slide>
+                ))}
+              </List>
+            </CardContent>
+          </Card>
+        </Fade>
+      )}
     </Container>
   );
 }
