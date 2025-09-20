@@ -124,7 +124,8 @@ const translations = {
     cancel: "取消",
     createTask: "创建任务",
     assignTaskTo: "为 {name} 分配自定义任务",
-    chatWith: "与 {name} 对话",
+    chatWith: "与主控智能体对话",
+    masterAgentChat: "主控智能体协调系统",
     dslCodeExample: `// 多智能体DSL代码示例
 agent WeatherAgent {
   capability: ["weather_prediction", "climate_analysis"]
@@ -271,7 +272,8 @@ workflow SmartCityWorkflow {
     cancel: "Cancel",
     createTask: "Create Task",
     assignTaskTo: "Assign Custom Task to {name}",
-    chatWith: "Chat with {name}",
+    chatWith: "Chat with Master Agent",
+    masterAgentChat: "Master Agent Coordination System",
     dslCodeExample: `// Multi-Agent DSL Code Example
 agent WeatherAgent {
   capability: ["weather_prediction", "climate_analysis"]
@@ -1553,7 +1555,12 @@ function AgentsPage() {
                         setAgentMessages([{
                           id: Date.now(),
                           type: 'system',
-                          content: `已连接到 ${agent.name}，您可以开始对话...`,
+                          content: `🤖 主控智能体已激活，正在协调 ${agent.name}。我可以帮助您管理多智能体系统、分配任务和监控性能。`,
+                          timestamp: new Date().toLocaleTimeString()
+                        }, {
+                          id: Date.now() + 1,
+                          type: 'agent',
+                          content: `您好！我是多智能体DSL框架的主控智能体。通过我，您可以:\n\n🔧 管理所有子智能体\n📋 分配和监控任务\n📊 查看系统性能\n⚙️ 调整算法参数\n\n请告诉我您需要什么帮助？`,
                           timestamp: new Date().toLocaleTimeString()
                         }]);
                         setAgentChatDialog(true);
@@ -1690,8 +1697,25 @@ function AgentsPage() {
 
       {/* 智能体对话框 */}
       <Dialog open={agentChatDialog} onClose={() => setAgentChatDialog(false)} maxWidth="md" fullWidth>
-        <DialogTitle>
-          {selectedAgent && t('chatWith').replace('{name}', selectedAgent.name)}
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box sx={{
+            background: 'linear-gradient(45deg, #1976d2, #42a5f5)',
+            borderRadius: '50%',
+            width: 40,
+            height: 40,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '1.2rem'
+          }}>
+            🤖
+          </Box>
+          <Box>
+            <Typography variant="h6">{t('chatWith')}</Typography>
+            <Typography variant="caption" color="text.secondary">
+              {t('masterAgentChat')}
+            </Typography>
+          </Box>
         </DialogTitle>
         <DialogContent>
           <Box sx={{ height: 400, overflow: 'auto', border: '1px solid #e0e0e0', borderRadius: 1, p: 2, mb: 2 }}>
@@ -4649,11 +4673,29 @@ function KnowledgeGraphPage() {
         <Grid item xs={12} md={4} sx={{ order: { xs: 1, md: 2 }, position: 'relative' }}>
           <Card sx={{
             mb: 2,
-            position: 'sticky',
-            top: 80,
+            position: { xs: 'relative', md: 'sticky' },
+            top: { xs: 'auto', md: 80 },
             zIndex: 10,
             boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-            border: '1px solid rgba(0,0,0,0.08)'
+            border: '1px solid rgba(0,0,0,0.08)',
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(10px)',
+            maxHeight: { xs: 'auto', md: 'calc(100vh - 120px)' },
+            overflowY: { xs: 'visible', md: 'auto' },
+            '&::-webkit-scrollbar': {
+              width: '8px',
+            },
+            '&::-webkit-scrollbar-track': {
+              background: 'rgba(0,0,0,0.1)',
+              borderRadius: '4px',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              background: 'rgba(0,0,0,0.3)',
+              borderRadius: '4px',
+              '&:hover': {
+                background: 'rgba(0,0,0,0.5)',
+              },
+            },
           }}>
             <CardContent>
               <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', fontWeight: 600 }}>
