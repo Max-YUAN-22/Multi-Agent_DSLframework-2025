@@ -1842,6 +1842,7 @@ function InteractionsPage() {
 // 企业级首页组件
 function HomePage() {
   const { t } = useLanguage();
+  const navigate = useNavigate();
   const [selectedAlgorithm, setSelectedAlgorithm] = React.useState(null);
 
   const [stats] = React.useState({
@@ -1952,6 +1953,7 @@ function HomePage() {
                   variant="contained"
                   size="large"
                   startIcon={<ScienceIcon />}
+                  onClick={() => navigate('/dsl-demo')}
                   sx={{
                     background: 'rgba(255, 255, 255, 0.15)',
                     backdropFilter: 'blur(10px)',
@@ -1972,6 +1974,7 @@ function HomePage() {
                   variant="outlined"
                   size="large"
                   startIcon={<DashboardIcon />}
+                  onClick={() => navigate('/dashboard')}
                   sx={{
                     border: '2px solid rgba(255, 255, 255, 0.3)',
                     color: 'white',
