@@ -4632,7 +4632,231 @@ function KnowledgeGraphPage() {
     </Container>
   );
 }
+            <CardContent>
+              <Typography variant="h6" gutterBottom sx={{ color: 'primary.main', fontWeight: 600 }}>
+                Graph Controls
+              </Typography>
 
+              {/* 搜索框 */}
+              <TextField
+                fullWidth
+                size="small"
+                placeholder="Search nodes and descriptions..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                sx={{ mb: 2 }}
+                InputProps={{
+                  startAdornment: (
+                    <Box sx={{ mr: 1, color: 'text.secondary' }}>
+                      🔍
+                    </Box>
+                  )
+                }}
+              />
+
+              {/* 分组过滤 */}
+              <FormControl fullWidth size="small" sx={{ mb: 2 }}>
+                <InputLabel>Filter by Type</InputLabel>
+                <Select
+                  value={filterGroup}
+                  onChange={handleFilterChange}
+                  label="Filter by Type"
+                >
+                  <MenuItem value="all">All Groups</MenuItem>
+                  {Object.entries(nodeGroups).map(([key, label]) => (
+                    <MenuItem key={key} value={key}>{label}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {/* 动画控制 */}
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={animationEnabled}
+                    onChange={(e) => setAnimationEnabled(e.target.checked)}
+                    size="small"
+                    color="primary"
+                  />
+                }
+                label="Live Animation"
+                sx={{ mb: 2, display: 'flex', width: '100%' }}
+              />
+
+              {/* 清除按钮 */}
+              <Button
+                fullWidth
+                variant="outlined"
+                onClick={clearFilters}
+                size="small"
+                sx={{ mb: 2 }}
+              >
+                Clear Filters
+              </Button>
+
+              {/* 统计信息 */}
+              <Grid container spacing={1} sx={{ mb: 2 }}>
+                <Grid item xs={6}>
+                  <Paper sx={{ p: 1, textAlign: 'center', bgcolor: 'primary.main', color: 'white' }}>
+                    <Typography variant="h6">{filteredData.nodes.length}</Typography>
+                    <Typography variant="caption">Nodes</Typography>
+                  </Paper>
+                </Grid>
+                <Grid item xs={6}>
+                  <Paper sx={{ p: 1, textAlign: 'center', bgcolor: 'secondary.main', color: 'white' }}>
+                    <Typography variant="h6">{filteredData.links.length}</Typography>
+                    <Typography variant="caption">Links</Typography>
+                  </Paper>
+                </Grid>
+              </Grid>
+
+              {/* 图例 */}
+              <Typography variant="subtitle2" gutterBottom>
+                Node Types
+              </Typography>
+              {Object.entries(nodeGroups).map(([key, label]) => (
+                <Box key={key} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <Box sx={{ width: 12, height: 12, bgcolor: nodeColors[key], borderRadius: '50%', mr: 1 }} />
+                  <Typography variant="caption">{label}</Typography>
+                </Box>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card sx={{ height: '400px' }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Node Details
+              </Typography>
+              
+              {selectedNode ? (
+                <Box>
+                  <Typography variant="h6" color="primary" gutterBottom>
+                    {selectedNode.label}
+                  </Typography>
+                  <Chip 
+                    label={nodeGroups[selectedNode.group]} 
+                    color="primary" 
+                    size="small" 
+                    sx={{ mb: 2 }}
+                  />
+                  
+                  <Typography variant="body2" gutterBottom>
+                    <strong>Description:</strong> {selectedNode.description}
+                  </Typography>
+                  <Typography variant="body2" gutterBottom>
+                    <strong>Node ID:</strong> {selectedNode.id}
+                  </Typography>
+                  <Typography variant="body2" gutterBottom>
+                    <strong>Position:</strong> ({Math.round(selectedNode.x)}, {Math.round(selectedNode.y)})
+                  </Typography>
+                  <Typography variant="body2" gutterBottom>
+                    <strong>Size:</strong> {selectedNode.size}px
+                  </Typography>
+                  
+                  <Divider sx={{ my: 2 }} />
+                  
+                  <Typography variant="subtitle2" gutterBottom>Connections</Typography>
+                  <List dense>
+                    {graphData.links
+                      .filter(link => link.source === selectedNode.id || link.target === selectedNode.id)
+                      .map((link, index) => {
+                        const connectedNodeId = link.source === selectedNode.id ? link.target : link.source;
+                        const connectedNode = graphData.nodes.find(n => n.id === connectedNodeId);
+                        return (
+                          <ListItem key={index} sx={{ px: 0 }}>
+                            <ListItemText
+                              primary={connectedNode?.label}
+                              secondary={`${link.label} (Weight: ${link.weight})`}
+                            />
+                          </ListItem>
+                        );
+                      })}
+                  </List>
+                </Box>
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  Click on any node in the graph to view detailed information
+                </Typography>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* 统计信息 */}
+      <Grid container spacing={3} sx={{ mt: 2 }}>
+        <Grid item xs={12} md={3}>
+          <Card sx={{ background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)' }}>
+            <CardContent>
+              <Typography variant="h6" color="primary">Total Nodes</Typography>
+              <Typography variant="h4" color="primary" sx={{ fontWeight: 700 }}>
+                {filteredData.nodes.length} / {graphData.nodes.length}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">Architecture Components</Typography>
+              <LinearProgress
+                variant="determinate"
+                value={(filteredData.nodes.length / graphData.nodes.length) * 100}
+                sx={{ mt: 1 }}
+              />
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <Card sx={{ background: 'linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)' }}>
+            <CardContent>
+              <Typography variant="h6" color="secondary">Total Connections</Typography>
+              <Typography variant="h4" color="secondary" sx={{ fontWeight: 700 }}>
+                {filteredData.links.length} / {graphData.links.length}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">Relationship Links</Typography>
+              <LinearProgress
+                variant="determinate"
+                value={(filteredData.links.length / graphData.links.length) * 100}
+                color="secondary"
+                sx={{ mt: 1 }}
+              />
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <Card sx={{ background: 'linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%)' }}>
+            <CardContent>
+              <Typography variant="h6" color="success">Intelligent Agents</Typography>
+              <Typography variant="h4" color="success" sx={{ fontWeight: 700 }}>
+                {filteredData.nodes.filter(n => n.group === 'agent').length} / {graphData.nodes.filter(n => n.group === 'agent').length}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">Active Agents</Typography>
+              <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                <Chip label="Weather" size="small" color="success" variant="outlined" />
+                <Chip label="Traffic" size="small" color="success" variant="outlined" />
+                <Chip label="Safety" size="small" color="warning" variant="outlined" />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <Card sx={{ background: 'linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%)' }}>
+            <CardContent>
+              <Typography variant="h6" color="error">Core Algorithms</Typography>
+              <Typography variant="h4" color="error" sx={{ fontWeight: 700 }}>
+                {filteredData.nodes.filter(n => n.group === 'algorithm').length} / {graphData.nodes.filter(n => n.group === 'algorithm').length}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">ATSLP, HCMPL, CALK</Typography>
+              <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                <Chip label="ATSLP" size="small" color="primary" />
+                <Chip label="HCMPL" size="small" color="secondary" />
+                <Chip label="CALK" size="small" color="success" />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Container>
+  );
+}
+
+// 企业级仪表板页面
 function DashboardPage() {
   const [systemMetrics, setSystemMetrics] = React.useState({
     throughput: 217,
