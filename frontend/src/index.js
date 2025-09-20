@@ -97,7 +97,61 @@ const translations = {
     scheduler: "调度器",
     exploreTechnology: "探索技术",
     liveDashboard: "实时仪表板",
-    coreAlgorithmsSubtitle: "三种革命性算法和谐协作，提供前所未有的性能"
+    coreAlgorithmsSubtitle: "三种革命性算法和谐协作，提供前所未有的性能",
+    collaborativeLearningProgress: "协作学习进度",
+    smartCityOptimization: "智慧城市交通优化",
+    smartCityDescription: "基于多智能体DSL框架的智慧城市交通管理系统",
+    deploymentSolution: "部署交通智能体、天气智能体、停车智能体协作工作",
+    agentCollaborationSuccessRate: "智能体协作成功率99.7%",
+    dslCodeExample: `// 多智能体DSL代码示例
+agent WeatherAgent {
+  capability: ["weather_prediction", "climate_analysis"]
+  schedule: ATSLP.adaptive_schedule()
+  cache: HCMPL.hierarchical_cache()
+  learning: CALK.collaborative_learning()
+
+  task weather_forecast(location) {
+    data = fetch_weather_data(location)
+    prediction = ATSLP.schedule_prediction(data)
+    cached_result = HCMPL.cache_lookup(location)
+
+    if (cached_result.valid) {
+      return CALK.enhance_with_learning(cached_result)
+    }
+
+    result = ml_model.predict(data)
+    HCMPL.cache_store(location, result)
+    CALK.share_knowledge(result)
+
+    return result
+  }
+}
+
+agent TrafficAgent {
+  capability: ["traffic_optimization", "route_planning"]
+  collaborate_with: [WeatherAgent]
+
+  task optimize_traffic() {
+    weather_info = WeatherAgent.get_forecast()
+    traffic_data = fetch_traffic_data()
+
+    optimization = ATSLP.schedule_optimization(
+      traffic_data,
+      weather_info
+    )
+
+    return CALK.collaborative_optimize(optimization)
+  }
+}
+
+// 智能体协作流程
+workflow SmartCityWorkflow {
+  trigger: real_time_events
+
+  step 1: WeatherAgent.weather_forecast()
+  step 2: TrafficAgent.optimize_traffic()
+  step 3: CALK.cross_agent_learning()
+}`
   },
   en: {
     title: "Multi-Agent DSL Framework",
@@ -168,7 +222,61 @@ const translations = {
     scheduler: "Scheduler",
     exploreTechnology: "Explore Technology",
     liveDashboard: "Live Dashboard",
-    coreAlgorithmsSubtitle: "Three revolutionary algorithms working in harmony to deliver unprecedented performance"
+    coreAlgorithmsSubtitle: "Three revolutionary algorithms working in harmony to deliver unprecedented performance",
+    collaborativeLearningProgress: "Collaborative Learning Progress",
+    smartCityOptimization: "Smart City Traffic Optimization",
+    smartCityDescription: "Smart city traffic management system based on multi-agent DSL framework",
+    deploymentSolution: "Deploy traffic agents, weather agents, and parking agents for collaborative work",
+    agentCollaborationSuccessRate: "Agent collaboration success rate 99.7%",
+    dslCodeExample: `// Multi-Agent DSL Code Example
+agent WeatherAgent {
+  capability: ["weather_prediction", "climate_analysis"]
+  schedule: ATSLP.adaptive_schedule()
+  cache: HCMPL.hierarchical_cache()
+  learning: CALK.collaborative_learning()
+
+  task weather_forecast(location) {
+    data = fetch_weather_data(location)
+    prediction = ATSLP.schedule_prediction(data)
+    cached_result = HCMPL.cache_lookup(location)
+
+    if (cached_result.valid) {
+      return CALK.enhance_with_learning(cached_result)
+    }
+
+    result = ml_model.predict(data)
+    HCMPL.cache_store(location, result)
+    CALK.share_knowledge(result)
+
+    return result
+  }
+}
+
+agent TrafficAgent {
+  capability: ["traffic_optimization", "route_planning"]
+  collaborate_with: [WeatherAgent]
+
+  task optimize_traffic() {
+    weather_info = WeatherAgent.get_forecast()
+    traffic_data = fetch_traffic_data()
+
+    optimization = ATSLP.schedule_optimization(
+      traffic_data,
+      weather_info
+    )
+
+    return CALK.collaborative_optimize(optimization)
+  }
+}
+
+// Agent Collaboration Workflow
+workflow SmartCityWorkflow {
+  trigger: real_time_events
+
+  step 1: WeatherAgent.weather_forecast()
+  step 2: TrafficAgent.optimize_traffic()
+  step 3: CALK.cross_agent_learning()
+}`
   }
 };
 
@@ -2306,7 +2414,7 @@ function DSLDemoPage() {
         <Grid item xs={12} md={8}>
           <Card sx={{ height: '100%' }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>协作学习进度</Typography>
+              <Typography variant="h6" gutterBottom>{t('collaborativeLearningProgress')}</Typography>
               <Box sx={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Box sx={{ textAlign: 'center' }}>
                   <CircularProgress size={120} thickness={4} />
@@ -2348,58 +2456,7 @@ function DSLDemoPage() {
 
   // DSL执行可视化演示
   const renderDSLExecutionDemo = () => {
-    const dslCode = `
-// 多智能体DSL代码示例
-agent WeatherAgent {
-  capability: ["weather_prediction", "climate_analysis"]
-  schedule: ATSLP.adaptive_schedule()
-  cache: HCMPL.hierarchical_cache()
-  learning: CALK.collaborative_learning()
-
-  task weather_forecast(location) {
-    data = fetch_weather_data(location)
-    prediction = ATSLP.schedule_prediction(data)
-    cached_result = HCMPL.cache_lookup(location)
-
-    if (cached_result.valid) {
-      return CALK.enhance_with_learning(cached_result)
-    }
-
-    result = ml_model.predict(data)
-    HCMPL.cache_store(location, result)
-    CALK.share_knowledge(result)
-
-    return result
-  }
-}
-
-agent TrafficAgent {
-  capability: ["traffic_optimization", "route_planning"]
-  collaborate_with: [WeatherAgent]
-
-  task optimize_traffic() {
-    weather_info = WeatherAgent.get_forecast()
-    traffic_data = fetch_traffic_data()
-
-    optimization = ATSLP.schedule_optimization(
-      traffic_data,
-      weather_info
-    )
-
-    return CALK.collaborative_optimize(optimization)
-  }
-}
-
-// 智能体协作流程
-workflow SmartCityWorkflow {
-  trigger: real_time_events
-
-  step 1: WeatherAgent.weather_forecast()
-  step 2: TrafficAgent.optimize_traffic()
-  step 3: CALK.cross_agent_learning()
-  step 4: ATSLP.adaptive_reschedule()
-}
-`;
+    const dslCode = t('dslCodeExample');
 
     const executionSteps = [
       {
@@ -2584,9 +2641,9 @@ workflow SmartCityWorkflow {
     const caseStudies = [
       {
         id: 'smart-city',
-        title: '智慧城市交通优化',
+        title: t('smartCityOptimization'),
         category: '城市管理',
-        description: '基于多智能体DSL框架的智慧城市交通管理系统',
+        description: t('smartCityDescription'),
         metrics: {
           improvement: '+35%',
           efficiency: '92%',
@@ -2597,7 +2654,7 @@ workflow SmartCityWorkflow {
         deployment: '生产环境',
         details: {
           problem: '城市交通拥堵严重，需要智能调度和实时优化',
-          solution: '部署交通智能体、天气智能体、停车智能体协作工作',
+          solution: t('deploymentSolution'),
           results: [
             '交通流量优化提升35%',
             '平均响应时间降低到1.2秒',
