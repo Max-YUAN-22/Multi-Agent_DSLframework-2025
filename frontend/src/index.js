@@ -1211,7 +1211,7 @@ function DashboardPage() {
 // 主应用组件
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/Multi-Agent_DSLframework-2025">
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Navigation />
