@@ -5,24 +5,18 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { 
   Box, Typography, Container, AppBar, Toolbar, Button, Card, CardContent, 
-  Grid, Chip, Paper, Stepper, Step, StepLabel, StepContent, Alert, 
-  LinearProgress, Dialog, DialogTitle, DialogContent, DialogActions, 
-  IconButton, Avatar, List, ListItem, ListItemAvatar, ListItemText, 
-  ListItemSecondaryAction, Switch, FormControlLabel, Divider, Fab,
-  Fade, Slide, Zoom, Grow, Collapse, Skeleton, CircularProgress,
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Tabs, Tab, Accordion, AccordionSummary, AccordionDetails,
-  Snackbar, Alert as MuiAlert, Badge, Tooltip, TextField
+  Grid, Chip, LinearProgress, IconButton, Avatar, List, ListItem, 
+  ListItemText, Switch, FormControlLabel, Divider, Fade, Slide, Zoom, 
+  CircularProgress, TextField
 } from '@mui/material';
 import { 
   Science as ScienceIcon, Code as CodeIcon, School as SchoolIcon, 
-  Dashboard as DashboardIcon, PlayArrow as PlayIcon, CheckCircle as CheckCircleIcon, 
-  Close as CloseIcon, Info as InfoIcon, Group as GroupIcon, History as HistoryIcon, 
-  Settings as SettingsIcon, Chat as ChatIcon, Visibility as VisibilityIcon, 
-  Add as AddIcon, ExpandMore as ExpandMoreIcon, Refresh as RefreshIcon,
-  TrendingUp as TrendingUpIcon, Memory as MemoryIcon, Speed as SpeedIcon,
-  Security as SecurityIcon, Cloud as CloudIcon, Analytics as AnalyticsIcon,
-  Timeline as TimelineIcon, Assessment as AssessmentIcon, ShowChart as ShowChartIcon
+  Dashboard as DashboardIcon, CheckCircle as CheckCircleIcon, 
+  Close as CloseIcon, Group as GroupIcon, History as HistoryIcon, 
+  Chat as ChatIcon, Timeline as TimelineIcon,
+  Mic as MicIcon, MicOff as MicOffIcon, 
+  Image as ImageIcon, AttachFile as AttachFileIcon, SentimentSatisfied as SentimentIcon,
+  Psychology as PsychologyIcon, RecordVoiceOver as VoiceIcon
 } from '@mui/icons-material';
 import { io } from 'socket.io-client';
 
@@ -270,6 +264,12 @@ function Navigation() {
           <Button color="inherit" startIcon={<HistoryIcon />} onClick={() => navigate('/interactions')}>
             交互记录
           </Button>
+          <Button color="inherit" startIcon={<VoiceIcon />} onClick={() => navigate('/multimodal')}>
+            多模态交互
+          </Button>
+          <Button color="inherit" startIcon={<PsychologyIcon />} onClick={() => navigate('/knowledge-graph')}>
+            知识图谱
+          </Button>
           <Button color="inherit" startIcon={<DashboardIcon />} onClick={() => navigate('/dashboard')}>
             企业仪表板
           </Button>
@@ -297,9 +297,6 @@ function AgentsPage() {
   ]);
 
   const [wsConnected, setWsConnected] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
-  const [selectedAgent, setSelectedAgent] = React.useState(null);
-  const [agentDetailsOpen, setAgentDetailsOpen] = React.useState(false);
   const [animatingAgents, setAnimatingAgents] = React.useState(new Set());
   const [recentActivities, setRecentActivities] = React.useState([]);
 
@@ -760,7 +757,7 @@ function DSLDemoPage() {
   ]);
   const [inputMessage, setInputMessage] = React.useState('');
   const [isTyping, setIsTyping] = React.useState(false);
-  const [knowledgeGraph, setKnowledgeGraph] = React.useState({
+  const [knowledgeGraph] = React.useState({
     nodes: [
       { id: 'dsl', label: 'DSL框架', group: 'core', x: 0, y: 0 },
       { id: 'atslp', label: 'ATSLP', group: 'tech', x: -100, y: -100 },
@@ -1159,6 +1156,867 @@ function DSLDemoPage() {
   );
 }
 
+// 情感分析工具类
+class SentimentAnalyzer {
+  constructor() {
+    this.positiveWords = ['好', '棒', '优秀', '满意', '喜欢', '爱', '开心', '高兴', '成功', '完美', '赞', '厉害', '强大', '智能', '高效'];
+    this.negativeWords = ['坏', '差', '糟糕', '不满', '讨厌', '恨', '难过', '伤心', '失败', '错误', '问题', '困难', '慢', '卡', '崩溃'];
+    this.neutralWords = ['一般', '还行', '普通', '正常', '可以', '还行', '中等', '标准'];
+  }
+
+  analyze(text) {
+    if (!text || typeof text !== 'string') {
+      return { sentiment: 'neutral', score: 0, confidence: 0 };
+    }
+
+    const words = text.toLowerCase().split(/\s+/);
+    let positiveCount = 0;
+    let negativeCount = 0;
+    let neutralCount = 0;
+
+    words.forEach(word => {
+      if (this.positiveWords.some(pw => word.includes(pw))) {
+        positiveCount++;
+      } else if (this.negativeWords.some(nw => word.includes(nw))) {
+        negativeCount++;
+      } else if (this.neutralWords.some(nw => word.includes(nw))) {
+        neutralCount++;
+      }
+    });
+
+    const total = positiveCount + negativeCount + neutralCount;
+    if (total === 0) {
+      return { sentiment: 'neutral', score: 0, confidence: 0 };
+    }
+
+    const positiveScore = positiveCount / total;
+    const negativeScore = negativeCount / total;
+    const neutralScore = neutralCount / total;
+
+    let sentiment = 'neutral';
+    let score = 0;
+    let confidence = Math.max(positiveScore, negativeScore, neutralScore);
+
+    if (positiveScore > negativeScore && positiveScore > neutralScore) {
+      sentiment = 'positive';
+      score = positiveScore;
+    } else if (negativeScore > positiveScore && negativeScore > neutralScore) {
+      sentiment = 'negative';
+      score = negativeScore;
+    } else {
+      sentiment = 'neutral';
+      score = neutralScore;
+    }
+
+    return { sentiment, score, confidence };
+  }
+
+  getEmoji(sentiment) {
+    const emojiMap = {
+      positive: '😊',
+      negative: '😞',
+      neutral: '😐'
+    };
+    return emojiMap[sentiment] || '😐';
+  }
+
+  getColor(sentiment) {
+    const colorMap = {
+      positive: '#4caf50',
+      negative: '#f44336',
+      neutral: '#ff9800'
+    };
+    return colorMap[sentiment] || '#ff9800';
+  }
+}
+
+// 语音识别工具类
+class SpeechRecognitionManager {
+  constructor() {
+    this.recognition = null;
+    this.isListening = false;
+    this.onResult = null;
+    this.onError = null;
+    this.init();
+  }
+
+  init() {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      this.recognition = new SpeechRecognition();
+      this.recognition.continuous = false;
+      this.recognition.interimResults = false;
+      this.recognition.lang = 'zh-CN';
+
+      this.recognition.onresult = (event) => {
+        const result = event.results[0][0].transcript;
+        if (this.onResult) {
+          this.onResult(result);
+        }
+      };
+
+      this.recognition.onerror = (event) => {
+        if (this.onError) {
+          this.onError(event.error);
+        }
+      };
+
+      this.recognition.onend = () => {
+        this.isListening = false;
+      };
+    }
+  }
+
+  startListening() {
+    if (this.recognition && !this.isListening) {
+      this.isListening = true;
+      this.recognition.start();
+    }
+  }
+
+  stopListening() {
+    if (this.recognition && this.isListening) {
+      this.recognition.stop();
+      this.isListening = false;
+    }
+  }
+
+  isSupported() {
+    return this.recognition !== null;
+  }
+}
+
+// 语音合成工具类
+class SpeechSynthesisManager {
+  constructor() {
+    this.synth = window.speechSynthesis;
+    this.voices = [];
+    this.loadVoices();
+  }
+
+  loadVoices() {
+    this.voices = this.synth.getVoices();
+    if (this.voices.length === 0) {
+      setTimeout(() => this.loadVoices(), 100);
+    }
+  }
+
+  speak(text, options = {}) {
+    if (!this.synth) return;
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = options.lang || 'zh-CN';
+    utterance.rate = options.rate || 1;
+    utterance.pitch = options.pitch || 1;
+    utterance.volume = options.volume || 1;
+
+    // 尝试选择中文语音
+    const chineseVoice = this.voices.find(voice => 
+      voice.lang.includes('zh') || voice.name.includes('Chinese')
+    );
+    if (chineseVoice) {
+      utterance.voice = chineseVoice;
+    }
+
+    this.synth.speak(utterance);
+  }
+
+  stop() {
+    if (this.synth) {
+      this.synth.cancel();
+    }
+  }
+}
+
+// 多模态交互页面
+function MultimodalPage() {
+  const [inputMode, setInputMode] = React.useState('text'); // text, voice, image
+  const [messages, setMessages] = React.useState([
+    { 
+      id: 1, 
+      type: 'agent', 
+      content: '您好！我是多模态智能助手，支持文字、语音和图像交互。请选择您喜欢的交互方式。', 
+      timestamp: new Date().toLocaleTimeString(),
+      sentiment: 'positive',
+      mediaType: null
+    }
+  ]);
+  const [inputText, setInputText] = React.useState('');
+  const [isListening, setIsListening] = React.useState(false);
+  const [isProcessing, setIsProcessing] = React.useState(false);
+  const [uploadedImage, setUploadedImage] = React.useState(null);
+
+  const sentimentAnalyzer = React.useRef(new SentimentAnalyzer());
+  const speechRecognition = React.useRef(new SpeechRecognitionManager());
+  const speechSynthesis = React.useRef(new SpeechSynthesisManager());
+
+  React.useEffect(() => {
+    // 设置语音识别回调
+    speechRecognition.current.onResult = (result) => {
+      setInputText(result);
+      setIsListening(false);
+    };
+
+    speechRecognition.current.onError = (error) => {
+      console.error('语音识别错误:', error);
+      setIsListening(false);
+    };
+  }, []);
+
+  const handleSendMessage = async () => {
+    if (!inputText.trim() && !uploadedImage) return;
+
+    const userMessage = {
+      id: Date.now(),
+      type: 'user',
+      content: inputText || '上传了图片',
+      timestamp: new Date().toLocaleTimeString(),
+      sentiment: sentimentAnalyzer.current.analyze(inputText),
+      mediaType: uploadedImage ? 'image' : 'text'
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInputText('');
+    setUploadedImage(null);
+    setIsProcessing(true);
+
+    // 模拟AI处理
+    setTimeout(() => {
+      const responses = [
+        '我理解了您的需求。基于多模态分析，我建议采用协作学习策略来优化智能体性能。',
+        '通过语音和图像分析，我检测到您对系统性能的关注。让我为您提供详细的优化方案。',
+        '根据您的输入，我推荐使用ATSLP算法进行任务调度优化，这将显著提升系统效率。',
+        '我分析了您的需求，建议结合HCMPL和CALK技术实现更智能的多智能体协作。'
+      ];
+
+      const aiResponse = responses[Math.floor(Math.random() * responses.length)];
+      const aiMessage = {
+        id: Date.now() + 1,
+        type: 'agent',
+        content: aiResponse,
+        timestamp: new Date().toLocaleTimeString(),
+        sentiment: sentimentAnalyzer.current.analyze(aiResponse),
+        mediaType: 'text'
+      };
+
+      setMessages(prev => [...prev, aiMessage]);
+      setIsProcessing(false);
+
+      // 语音播报回复
+      speechSynthesis.current.speak(aiResponse);
+    }, 2000);
+  };
+
+  const handleVoiceInput = () => {
+    if (isListening) {
+      speechRecognition.current.stopListening();
+      setIsListening(false);
+    } else {
+      speechRecognition.current.startListening();
+      setIsListening(true);
+    }
+  };
+
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setUploadedImage(e.target.result);
+        setInputMode('image');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const renderMessage = (message) => {
+    const sentiment = message.sentiment || sentimentAnalyzer.current.analyze(message.content);
+    
+    return (
+      <Box key={message.id} sx={{ mb: 2, display: 'flex', justifyContent: message.type === 'user' ? 'flex-end' : 'flex-start' }}>
+        <Card sx={{ 
+          maxWidth: '70%', 
+          bgcolor: message.type === 'user' ? 'primary.main' : 'grey.100',
+          color: message.type === 'user' ? 'white' : 'text.primary',
+          position: 'relative'
+        }}>
+          <CardContent sx={{ p: 1.5 }}>
+            {message.mediaType === 'image' && uploadedImage && (
+              <Box sx={{ mb: 1 }}>
+                <img 
+                  src={uploadedImage} 
+                  alt="上传的图片" 
+                  style={{ maxWidth: '200px', maxHeight: '150px', borderRadius: '8px' }}
+                />
+              </Box>
+            )}
+            <Typography variant="body2">{message.content}</Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
+              <Typography variant="caption" sx={{ opacity: 0.7, fontSize: '0.7rem' }}>
+                {message.timestamp}
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <Typography variant="caption" sx={{ fontSize: '1rem' }}>
+                  {sentimentAnalyzer.current.getEmoji(sentiment.sentiment)}
+                </Typography>
+                <Chip 
+                  label={sentiment.sentiment} 
+                  size="small" 
+                  sx={{ 
+                    bgcolor: sentimentAnalyzer.current.getColor(sentiment.sentiment),
+                    color: 'white',
+                    fontSize: '0.6rem',
+                    height: '16px'
+                  }}
+                />
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+      </Box>
+    );
+  };
+
+  return (
+    <Container maxWidth="lg">
+      <Box sx={{ mt: 3, mb: 3 }}>
+        <Typography variant="h4" gutterBottom>
+          多模态智能交互
+        </Typography>
+        <Typography variant="body1" color="text.secondary" gutterBottom>
+          支持文字、语音、图像多种交互方式，集成情感分析功能
+        </Typography>
+      </Box>
+
+      <Grid container spacing={3}>
+        {/* 对话区域 */}
+        <Grid item xs={12} md={8}>
+          <Card sx={{ height: '600px', display: 'flex', flexDirection: 'column' }}>
+            <CardContent sx={{ flex: 1, overflow: 'auto', p: 2 }}>
+              {messages.map(renderMessage)}
+              {isProcessing && (
+                <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 2 }}>
+                  <Card sx={{ bgcolor: 'grey.100' }}>
+                    <CardContent sx={{ p: 1.5 }}>
+                      <Typography variant="body2">AI正在分析中...</Typography>
+                      <Box sx={{ display: 'flex', gap: 0.5, mt: 1 }}>
+                        <Box sx={{ width: 4, height: 4, bgcolor: 'primary.main', borderRadius: '50%', animation: 'pulse 1s infinite' }} />
+                        <Box sx={{ width: 4, height: 4, bgcolor: 'primary.main', borderRadius: '50%', animation: 'pulse 1s infinite 0.2s' }} />
+                        <Box sx={{ width: 4, height: 4, bgcolor: 'primary.main', borderRadius: '50%', animation: 'pulse 1s infinite 0.4s' }} />
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </Box>
+              )}
+            </CardContent>
+            
+            {/* 输入区域 */}
+            <Box sx={{ p: 2, borderTop: '1px solid #e0e0e0' }}>
+              {/* 模式选择 */}
+              <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                <Chip 
+                  label="文字" 
+                  icon={<ChatIcon />}
+                  color={inputMode === 'text' ? 'primary' : 'default'}
+                  onClick={() => setInputMode('text')}
+                />
+                <Chip 
+                  label="语音" 
+                  icon={<MicIcon />}
+                  color={inputMode === 'voice' ? 'primary' : 'default'}
+                  onClick={() => setInputMode('voice')}
+                  disabled={!speechRecognition.current.isSupported()}
+                />
+                <Chip 
+                  label="图像" 
+                  icon={<ImageIcon />}
+                  color={inputMode === 'image' ? 'primary' : 'default'}
+                  onClick={() => setInputMode('image')}
+                />
+              </Box>
+
+              {/* 输入控件 */}
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                {inputMode === 'text' && (
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    placeholder="输入您的问题..."
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                  />
+                )}
+                
+                {inputMode === 'voice' && (
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    placeholder={isListening ? "正在听取语音..." : "点击麦克风开始语音输入"}
+                    value={inputText}
+                    disabled
+                  />
+                )}
+
+                {inputMode === 'image' && (
+                  <TextField
+                    fullWidth
+                    variant="outlined"
+                    placeholder="选择图片文件..."
+                    disabled
+                  />
+                )}
+
+                {/* 功能按钮 */}
+                <IconButton 
+                  color={isListening ? 'error' : 'primary'}
+                  onClick={handleVoiceInput}
+                  disabled={!speechRecognition.current.isSupported()}
+                >
+                  {isListening ? <MicOffIcon /> : <MicIcon />}
+                </IconButton>
+
+                <input
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  id="image-upload"
+                  type="file"
+                  onChange={handleImageUpload}
+                />
+                <label htmlFor="image-upload">
+                  <IconButton color="primary" component="span">
+                    <AttachFileIcon />
+                  </IconButton>
+                </label>
+
+                <Button 
+                  variant="contained" 
+                  onClick={handleSendMessage} 
+                  disabled={!inputText.trim() && !uploadedImage}
+                >
+                  发送
+                </Button>
+              </Box>
+            </Box>
+          </Card>
+        </Grid>
+
+        {/* 侧边栏 - 情感分析 */}
+        <Grid item xs={12} md={4}>
+          <Card sx={{ height: '600px' }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <SentimentIcon color="primary" />
+                情感分析
+              </Typography>
+              
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="subtitle2" gutterBottom>整体情感趋势</Typography>
+                <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                  <Chip label="😊 积极" color="success" size="small" />
+                  <Chip label="😐 中性" color="warning" size="small" />
+                  <Chip label="😞 消极" color="error" size="small" />
+                </Box>
+                
+                <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>最近消息情感</Typography>
+                <List dense>
+                  {messages.slice(-5).map((msg) => {
+                    const sentiment = msg.sentiment || sentimentAnalyzer.current.analyze(msg.content);
+                    return (
+                      <ListItem key={msg.id} sx={{ px: 0 }}>
+                        <ListItemText
+                          primary={
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Typography variant="caption" sx={{ fontSize: '1rem' }}>
+                                {sentimentAnalyzer.current.getEmoji(sentiment.sentiment)}
+                              </Typography>
+                              <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
+                                {msg.content.substring(0, 30)}...
+                              </Typography>
+                            </Box>
+                          }
+                          secondary={
+                            <Typography variant="caption" color="text.secondary">
+                              {msg.timestamp}
+                            </Typography>
+                          }
+                        />
+                      </ListItem>
+                    );
+                  })}
+                </List>
+              </Box>
+
+              <Divider sx={{ my: 2 }} />
+
+              <Typography variant="subtitle2" gutterBottom>交互统计</Typography>
+              <Box sx={{ mt: 1 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography variant="body2">文字消息</Typography>
+                  <Typography variant="body2" color="primary">
+                    {messages.filter(m => m.mediaType === 'text' || !m.mediaType).length}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography variant="body2">语音消息</Typography>
+                  <Typography variant="body2" color="secondary">
+                    {messages.filter(m => m.mediaType === 'voice').length}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography variant="body2">图像消息</Typography>
+                  <Typography variant="body2" color="success">
+                    {messages.filter(m => m.mediaType === 'image').length}
+                  </Typography>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Container>
+  );
+}
+
+// 知识图谱可视化页面
+function KnowledgeGraphPage() {
+  const [graphData, setGraphData] = React.useState({
+    nodes: [
+      { id: 'dsl', label: 'Multi-Agent DSL Framework', group: 'core', x: 0, y: 0, size: 35, description: '核心框架' },
+      { id: 'atslp', label: 'ATSLP Algorithm', group: 'algorithm', x: -200, y: -120, size: 28, description: '自适应任务调度与负载预测' },
+      { id: 'hcmpl', label: 'HCMPL Algorithm', group: 'algorithm', x: 200, y: -120, size: 28, description: '分层缓存管理与模式学习' },
+      { id: 'calk', label: 'CALK Algorithm', group: 'algorithm', x: 0, y: -240, size: 28, description: '协作智能体学习与知识转移' },
+      { id: 'weather', label: 'Weather Agent', group: 'agent', x: -300, y: 120, size: 22, description: '天气预测智能体' },
+      { id: 'traffic', label: 'Traffic Agent', group: 'agent', x: -150, y: 120, size: 22, description: '交通优化智能体' },
+      { id: 'parking', label: 'Parking Agent', group: 'agent', x: 0, y: 120, size: 22, description: '停车管理智能体' },
+      { id: 'safety', label: 'Safety Agent', group: 'agent', x: 150, y: 120, size: 22, description: '安全监控智能体' },
+      { id: 'ems', label: 'EMS Agent', group: 'agent', x: 300, y: 120, size: 22, description: '紧急响应智能体' },
+      { id: 'scheduler', label: 'Task Scheduler', group: 'system', x: -200, y: 240, size: 25, description: '任务调度系统' },
+      { id: 'cache', label: 'Cache System', group: 'system', x: 0, y: 240, size: 25, description: '缓存管理系统' },
+      { id: 'learning', label: 'Learning Module', group: 'system', x: 200, y: 240, size: 25, description: '协作学习模块' },
+      { id: 'performance', label: 'Performance Monitor', group: 'monitor', x: -100, y: 360, size: 20, description: '性能监控' },
+      { id: 'analytics', label: 'Analytics Engine', group: 'monitor', x: 100, y: 360, size: 20, description: '分析引擎' }
+    ],
+    links: [
+      { source: 'dsl', target: 'atslp', weight: 0.9, label: '核心算法' },
+      { source: 'dsl', target: 'hcmpl', weight: 0.9, label: '核心算法' },
+      { source: 'dsl', target: 'calk', weight: 0.9, label: '核心算法' },
+      { source: 'atslp', target: 'scheduler', weight: 0.7, label: '调度优化' },
+      { source: 'hcmpl', target: 'cache', weight: 0.7, label: '缓存优化' },
+      { source: 'calk', target: 'learning', weight: 0.7, label: '学习优化' },
+      { source: 'scheduler', target: 'weather', weight: 0.5, label: '任务分配' },
+      { source: 'scheduler', target: 'traffic', weight: 0.5, label: '任务分配' },
+      { source: 'scheduler', target: 'parking', weight: 0.5, label: '任务分配' },
+      { source: 'scheduler', target: 'safety', weight: 0.5, label: '任务分配' },
+      { source: 'scheduler', target: 'ems', weight: 0.5, label: '任务分配' },
+      { source: 'cache', target: 'weather', weight: 0.4, label: '数据缓存' },
+      { source: 'cache', target: 'traffic', weight: 0.4, label: '数据缓存' },
+      { source: 'cache', target: 'parking', weight: 0.4, label: '数据缓存' },
+      { source: 'learning', target: 'weather', weight: 0.6, label: '知识共享' },
+      { source: 'learning', target: 'traffic', weight: 0.6, label: '知识共享' },
+      { source: 'learning', target: 'parking', weight: 0.6, label: '知识共享' },
+      { source: 'scheduler', target: 'performance', weight: 0.3, label: '性能监控' },
+      { source: 'learning', target: 'analytics', weight: 0.3, label: '数据分析' }
+    ]
+  });
+
+  const [selectedNode, setSelectedNode] = React.useState(null);
+  const [animationEnabled, setAnimationEnabled] = React.useState(true);
+
+  const nodeColors = {
+    core: '#1976d2',
+    algorithm: '#dc004e',
+    agent: '#4caf50',
+    system: '#ff9800',
+    monitor: '#9c27b0'
+  };
+
+  const nodeGroups = {
+    core: 'Core Framework',
+    algorithm: 'Core Algorithms',
+    agent: 'Intelligent Agents',
+    system: 'System Components',
+    monitor: 'Monitoring & Analytics'
+  };
+
+  React.useEffect(() => {
+    if (animationEnabled) {
+      const interval = setInterval(() => {
+        setGraphData(prevData => ({
+          ...prevData,
+          nodes: prevData.nodes.map(node => ({
+            ...node,
+            x: node.x + (Math.random() - 0.5) * 10,
+            y: node.y + (Math.random() - 0.5) * 10
+          }))
+        }));
+      }, 3000);
+
+      return () => clearInterval(interval);
+    }
+  }, [animationEnabled]);
+
+  const handleNodeClick = (nodeId) => {
+    const node = graphData.nodes.find(n => n.id === nodeId);
+    setSelectedNode(node);
+  };
+
+  const renderGraph = () => (
+    <Box sx={{ height: '700px', position: 'relative', border: '1px solid #e0e0e0', borderRadius: 1, overflow: 'hidden' }}>
+      <svg width="100%" height="100%" style={{ background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)' }}>
+        {/* 绘制连接线 */}
+        {graphData.links.map((link, index) => {
+          const source = graphData.nodes.find(n => n.id === link.source);
+          const target = graphData.nodes.find(n => n.id === link.target);
+          if (!source || !target) return null;
+          
+          const x1 = 400 + source.x;
+          const y1 = 350 + source.y;
+          const x2 = 400 + target.x;
+          const y2 = 350 + target.y;
+          const midX = (x1 + x2) / 2;
+          const midY = (y1 + y2) / 2;
+          
+          return (
+            <g key={index}>
+              <line
+                x1={x1}
+                y1={y1}
+                x2={x2}
+                y2={y2}
+                stroke={nodeColors[source.group]}
+                strokeWidth={link.weight * 4}
+                opacity="0.7"
+                strokeDasharray={link.weight > 0.7 ? "0" : "5,5"}
+              />
+              {/* 连接标签 */}
+              <text
+                x={midX}
+                y={midY - 5}
+                textAnchor="middle"
+                fill={nodeColors[source.group]}
+                fontSize="8"
+                fontWeight="bold"
+                style={{ pointerEvents: 'none' }}
+              >
+                {link.label}
+              </text>
+            </g>
+          );
+        })}
+        
+        {/* 绘制节点 */}
+        {graphData.nodes.map((node) => {
+          const x = 400 + node.x;
+          const y = 350 + node.y;
+          const color = nodeColors[node.group];
+          const isSelected = selectedNode && selectedNode.id === node.id;
+          
+          return (
+            <g key={node.id}>
+              {/* 节点阴影 */}
+              <circle
+                cx={x + 2}
+                cy={y + 2}
+                r={node.size + 2}
+                fill="rgba(0,0,0,0.1)"
+                style={{ pointerEvents: 'none' }}
+              />
+              {/* 节点主体 */}
+              <circle
+                cx={x}
+                cy={y}
+                r={node.size}
+                fill={color}
+                stroke={isSelected ? "#000" : "white"}
+                strokeWidth={isSelected ? 4 : 3}
+                style={{ cursor: 'pointer' }}
+                onClick={() => handleNodeClick(node.id)}
+              />
+              {/* 节点标签 */}
+              <text
+                x={x}
+                y={y + 4}
+                textAnchor="middle"
+                fill="white"
+                fontSize="9"
+                fontWeight="bold"
+                style={{ pointerEvents: 'none' }}
+              >
+                {node.label.split(' ').map((word, i) => (
+                  <tspan key={i} x={x} dy={i > 0 ? 10 : 0}>
+                    {word}
+                  </tspan>
+                ))}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+      
+      {/* 图例 */}
+      <Box sx={{ position: 'absolute', top: 10, right: 10, bgcolor: 'white', p: 2, borderRadius: 1, boxShadow: 2 }}>
+        <Typography variant="subtitle2" gutterBottom>Legend</Typography>
+        {Object.entries(nodeGroups).map(([key, label]) => (
+          <Box key={key} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+            <Box sx={{ width: 12, height: 12, bgcolor: nodeColors[key], borderRadius: '50%', mr: 1 }} />
+            <Typography variant="caption">{label}</Typography>
+          </Box>
+        ))}
+      </Box>
+
+      {/* 控制面板 */}
+      <Box sx={{ position: 'absolute', top: 10, left: 10, bgcolor: 'white', p: 2, borderRadius: 1, boxShadow: 2 }}>
+        <Typography variant="subtitle2" gutterBottom>Controls</Typography>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={animationEnabled}
+              onChange={(e) => setAnimationEnabled(e.target.checked)}
+              size="small"
+            />
+          }
+          label="Animation"
+        />
+      </Box>
+    </Box>
+  );
+
+  return (
+    <Container maxWidth="lg">
+      <Box sx={{ mt: 3, mb: 3 }}>
+        <Typography variant="h4" gutterBottom>
+          Knowledge Graph Visualization
+        </Typography>
+        <Typography variant="body1" color="text.secondary" gutterBottom>
+          Multi-Agent DSL Framework: Knowledge Association and Collaborative Relationship Graph
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+          This visualization demonstrates the architectural relationships between core algorithms (ATSLP, HCMPL, CALK), 
+          intelligent agents, and system components in our multi-agent DSL framework.
+        </Typography>
+      </Box>
+
+      <Grid container spacing={3}>
+        {/* 图谱可视化 */}
+        <Grid item xs={12} md={8}>
+          <Card>
+            <CardContent>
+              {renderGraph()}
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* 节点详情 */}
+        <Grid item xs={12} md={4}>
+          <Card sx={{ height: '700px' }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Node Details
+              </Typography>
+              
+              {selectedNode ? (
+                <Box>
+                  <Typography variant="h6" color="primary" gutterBottom>
+                    {selectedNode.label}
+                  </Typography>
+                  <Chip 
+                    label={nodeGroups[selectedNode.group]} 
+                    color="primary" 
+                    size="small" 
+                    sx={{ mb: 2 }}
+                  />
+                  
+                  <Typography variant="body2" gutterBottom>
+                    <strong>Description:</strong> {selectedNode.description}
+                  </Typography>
+                  <Typography variant="body2" gutterBottom>
+                    <strong>Node ID:</strong> {selectedNode.id}
+                  </Typography>
+                  <Typography variant="body2" gutterBottom>
+                    <strong>Position:</strong> ({Math.round(selectedNode.x)}, {Math.round(selectedNode.y)})
+                  </Typography>
+                  <Typography variant="body2" gutterBottom>
+                    <strong>Size:</strong> {selectedNode.size}px
+                  </Typography>
+                  
+                  <Divider sx={{ my: 2 }} />
+                  
+                  <Typography variant="subtitle2" gutterBottom>Connections</Typography>
+                  <List dense>
+                    {graphData.links
+                      .filter(link => link.source === selectedNode.id || link.target === selectedNode.id)
+                      .map((link, index) => {
+                        const connectedNodeId = link.source === selectedNode.id ? link.target : link.source;
+                        const connectedNode = graphData.nodes.find(n => n.id === connectedNodeId);
+                        return (
+                          <ListItem key={index} sx={{ px: 0 }}>
+                            <ListItemText
+                              primary={connectedNode?.label}
+                              secondary={`${link.label} (Weight: ${link.weight})`}
+                            />
+                          </ListItem>
+                        );
+                      })}
+                  </List>
+                </Box>
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  Click on any node in the graph to view detailed information
+                </Typography>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* 统计信息 */}
+      <Grid container spacing={3} sx={{ mt: 2 }}>
+        <Grid item xs={12} md={3}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6">Total Nodes</Typography>
+              <Typography variant="h4" color="primary">{graphData.nodes.length}</Typography>
+              <Typography variant="caption" color="text.secondary">Architecture Components</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6">Total Connections</Typography>
+              <Typography variant="h4" color="secondary">{graphData.links.length}</Typography>
+              <Typography variant="caption" color="text.secondary">Relationship Links</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6">Intelligent Agents</Typography>
+              <Typography variant="h4" color="success">
+                {graphData.nodes.filter(n => n.group === 'agent').length}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">Specialized Agents</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={3}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6">Core Algorithms</Typography>
+              <Typography variant="h4" color="warning">
+                {graphData.nodes.filter(n => n.group === 'algorithm').length}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">ATSLP, HCMPL, CALK</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Container>
+  );
+}
+
 // 企业仪表板页面
 function DashboardPage() {
   return (
@@ -1220,6 +2078,8 @@ function App() {
           <Route path="/dsl-demo" element={<DSLDemoPage />} />
           <Route path="/agents" element={<AgentsPage />} />
           <Route path="/interactions" element={<InteractionsPage />} />
+          <Route path="/multimodal" element={<MultimodalPage />} />
+          <Route path="/knowledge-graph" element={<KnowledgeGraphPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
         </Routes>
       </ThemeProvider>
