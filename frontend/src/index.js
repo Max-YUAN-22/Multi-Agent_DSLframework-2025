@@ -12,7 +12,7 @@ import {
   Fade, Slide, Zoom, Grow, Collapse, Skeleton, CircularProgress,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Tabs, Tab, Accordion, AccordionSummary, AccordionDetails,
-  Snackbar, Alert as MuiAlert, Badge, Tooltip
+  Snackbar, Alert as MuiAlert, Badge, Tooltip, TextField
 } from '@mui/material';
 import { 
   Science as ScienceIcon, Code as CodeIcon, School as SchoolIcon, 
@@ -751,20 +751,410 @@ function HomePage() {
   );
 }
 
-// DSL演示页面
+// DSL演示页面 - 企业级多智能体DSL框架演示
 function DSLDemoPage() {
+  const [selectedDemo, setSelectedDemo] = React.useState('conversation');
+  const [conversationHistory, setConversationHistory] = React.useState([
+    { id: 1, type: 'user', message: '你好，我想了解多智能体DSL框架', timestamp: new Date().toLocaleTimeString() },
+    { id: 2, type: 'agent', message: '您好！我是多智能体DSL框架的智能助手。我可以帮您了解ATSLP、HCMPL和CALK等核心技术。您想了解哪个方面？', timestamp: new Date().toLocaleTimeString() }
+  ]);
+  const [inputMessage, setInputMessage] = React.useState('');
+  const [isTyping, setIsTyping] = React.useState(false);
+  const [knowledgeGraph, setKnowledgeGraph] = React.useState({
+    nodes: [
+      { id: 'dsl', label: 'DSL框架', group: 'core', x: 0, y: 0 },
+      { id: 'atslp', label: 'ATSLP', group: 'tech', x: -100, y: -100 },
+      { id: 'hcmpl', label: 'HCMPL', group: 'tech', x: 100, y: -100 },
+      { id: 'calk', label: 'CALK', group: 'tech', x: 0, y: -200 },
+      { id: 'agents', label: '智能体', group: 'system', x: -150, y: 100 },
+      { id: 'scheduler', label: '调度器', group: 'system', x: 150, y: 100 },
+      { id: 'learning', label: '协作学习', group: 'system', x: 0, y: 200 }
+    ],
+    links: [
+      { source: 'dsl', target: 'atslp' },
+      { source: 'dsl', target: 'hcmpl' },
+      { source: 'dsl', target: 'calk' },
+      { source: 'atslp', target: 'agents' },
+      { source: 'hcmpl', target: 'scheduler' },
+      { source: 'calk', target: 'learning' }
+    ]
+  });
+
+  const demos = [
+    { id: 'conversation', title: '智能对话', icon: <ChatIcon />, description: '基于自然语言理解的智能对话系统' },
+    { id: 'knowledge', title: '知识图谱', icon: <ScienceIcon />, description: '多智能体知识关联与推理' },
+    { id: 'scheduling', title: '智能调度', icon: <DashboardIcon />, description: '自适应任务调度与资源分配' },
+    { id: 'learning', title: '协作学习', icon: <SchoolIcon />, description: '多智能体协作学习与优化' }
+  ];
+
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim()) return;
+    
+    const userMessage = {
+      id: Date.now(),
+      type: 'user',
+      message: inputMessage,
+      timestamp: new Date().toLocaleTimeString()
+    };
+    
+    setConversationHistory(prev => [...prev, userMessage]);
+    setInputMessage('');
+    setIsTyping(true);
+    
+    // 模拟AI回复
+    setTimeout(() => {
+      const responses = [
+        '这是一个很好的问题！多智能体DSL框架通过ATSLP实现自适应任务调度，通过HCMPL进行层次化协作管理，通过CALK实现协作学习优化。',
+        '您提到的技术点非常关键。我们的框架支持动态负载均衡和智能资源分配，能够根据实时情况调整智能体的工作模式。',
+        '协作学习是我们框架的核心特色。多个智能体可以共享经验，相互学习，不断提升整体性能。',
+        '知识图谱技术帮助我们构建智能体之间的关联关系，实现更精准的协作和推理。'
+      ];
+      
+      const aiMessage = {
+        id: Date.now() + 1,
+        type: 'agent',
+        message: responses[Math.floor(Math.random() * responses.length)],
+        timestamp: new Date().toLocaleTimeString()
+      };
+      
+      setConversationHistory(prev => [...prev, aiMessage]);
+      setIsTyping(false);
+    }, 1500);
+  };
+
+  const renderConversationDemo = () => (
+    <Box sx={{ height: '500px', display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ flex: 1, overflow: 'auto', p: 2, border: '1px solid #e0e0e0', borderRadius: 1, mb: 2 }}>
+        {conversationHistory.map((msg) => (
+          <Box key={msg.id} sx={{ mb: 2, display: 'flex', justifyContent: msg.type === 'user' ? 'flex-end' : 'flex-start' }}>
+            <Card sx={{ 
+              maxWidth: '70%', 
+              bgcolor: msg.type === 'user' ? 'primary.main' : 'grey.100',
+              color: msg.type === 'user' ? 'white' : 'text.primary'
+            }}>
+              <CardContent sx={{ p: 1.5 }}>
+                <Typography variant="body2">{msg.message}</Typography>
+                <Typography variant="caption" sx={{ opacity: 0.7, fontSize: '0.7rem' }}>
+                  {msg.timestamp}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Box>
+        ))}
+        {isTyping && (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 2 }}>
+            <Card sx={{ bgcolor: 'grey.100' }}>
+              <CardContent sx={{ p: 1.5 }}>
+                <Typography variant="body2">AI正在思考中...</Typography>
+                <Box sx={{ display: 'flex', gap: 0.5, mt: 1 }}>
+                  <Box sx={{ width: 4, height: 4, bgcolor: 'primary.main', borderRadius: '50%', animation: 'pulse 1s infinite' }} />
+                  <Box sx={{ width: 4, height: 4, bgcolor: 'primary.main', borderRadius: '50%', animation: 'pulse 1s infinite 0.2s' }} />
+                  <Box sx={{ width: 4, height: 4, bgcolor: 'primary.main', borderRadius: '50%', animation: 'pulse 1s infinite 0.4s' }} />
+                </Box>
+              </CardContent>
+            </Card>
+          </Box>
+        )}
+      </Box>
+      <Box sx={{ display: 'flex', gap: 1 }}>
+        <TextField
+          fullWidth
+          variant="outlined"
+          placeholder="输入您的问题..."
+          value={inputMessage}
+          onChange={(e) => setInputMessage(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+        />
+        <Button variant="contained" onClick={handleSendMessage} disabled={!inputMessage.trim()}>
+          发送
+        </Button>
+      </Box>
+    </Box>
+  );
+
+  const renderKnowledgeGraph = () => (
+    <Box sx={{ height: '500px', position: 'relative', border: '1px solid #e0e0e0', borderRadius: 1, overflow: 'hidden' }}>
+      <svg width="100%" height="100%" style={{ background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)' }}>
+        {/* 绘制连接线 */}
+        {knowledgeGraph.links.map((link, index) => {
+          const source = knowledgeGraph.nodes.find(n => n.id === link.source);
+          const target = knowledgeGraph.nodes.find(n => n.id === link.target);
+          if (!source || !target) return null;
+          
+          const x1 = 200 + source.x;
+          const y1 = 250 + source.y;
+          const x2 = 200 + target.x;
+          const y2 = 250 + target.y;
+          
+          return (
+            <line
+              key={index}
+              x1={x1}
+              y1={y1}
+              x2={x2}
+              y2={y2}
+              stroke="#1976d2"
+              strokeWidth="2"
+              opacity="0.6"
+            />
+          );
+        })}
+        
+        {/* 绘制节点 */}
+        {knowledgeGraph.nodes.map((node) => {
+          const x = 200 + node.x;
+          const y = 250 + node.y;
+          const colors = {
+            core: '#1976d2',
+            tech: '#dc004e',
+            system: '#4caf50'
+          };
+          
+          return (
+            <g key={node.id}>
+              <circle
+                cx={x}
+                cy={y}
+                r="25"
+                fill={colors[node.group]}
+                stroke="white"
+                strokeWidth="3"
+                style={{ cursor: 'pointer' }}
+              />
+              <text
+                x={x}
+                y={y + 5}
+                textAnchor="middle"
+                fill="white"
+                fontSize="10"
+                fontWeight="bold"
+              >
+                {node.label}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+      
+      {/* 图例 */}
+      <Box sx={{ position: 'absolute', top: 10, right: 10, bgcolor: 'white', p: 2, borderRadius: 1, boxShadow: 2 }}>
+        <Typography variant="subtitle2" gutterBottom>图例</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+          <Box sx={{ width: 12, height: 12, bgcolor: '#1976d2', borderRadius: '50%', mr: 1 }} />
+          <Typography variant="caption">核心组件</Typography>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+          <Box sx={{ width: 12, height: 12, bgcolor: '#dc004e', borderRadius: '50%', mr: 1 }} />
+          <Typography variant="caption">技术模块</Typography>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Box sx={{ width: 12, height: 12, bgcolor: '#4caf50', borderRadius: '50%', mr: 1 }} />
+          <Typography variant="caption">系统组件</Typography>
+        </Box>
+      </Box>
+    </Box>
+  );
+
+  const renderSchedulingDemo = () => (
+    <Box sx={{ height: '500px', p: 2 }}>
+      <Grid container spacing={2} sx={{ height: '100%' }}>
+        <Grid item xs={12} md={6}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>实时调度状态</Typography>
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="body2" gutterBottom>CPU使用率</Typography>
+                <LinearProgress variant="determinate" value={65} sx={{ mb: 1 }} />
+                <Typography variant="caption">65%</Typography>
+              </Box>
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="body2" gutterBottom>内存使用率</Typography>
+                <LinearProgress variant="determinate" value={78} color="secondary" sx={{ mb: 1 }} />
+                <Typography variant="caption">78%</Typography>
+              </Box>
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="body2" gutterBottom>网络带宽</Typography>
+                <LinearProgress variant="determinate" value={45} color="success" sx={{ mb: 1 }} />
+                <Typography variant="caption">45%</Typography>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>任务队列</Typography>
+              <List dense>
+                {[
+                  { id: 1, name: '数据处理任务', priority: 'high', progress: 80 },
+                  { id: 2, name: '模型训练任务', priority: 'medium', progress: 45 },
+                  { id: 3, name: 'API调用任务', priority: 'low', progress: 20 },
+                  { id: 4, name: '日志分析任务', priority: 'medium', progress: 90 }
+                ].map((task) => (
+                  <ListItem key={task.id} sx={{ px: 0 }}>
+                    <ListItemText
+                      primary={task.name}
+                      secondary={
+                        <Box>
+                          <Chip 
+                            label={task.priority} 
+                            size="small" 
+                            color={task.priority === 'high' ? 'error' : task.priority === 'medium' ? 'warning' : 'default'}
+                            sx={{ mr: 1 }}
+                          />
+                          <LinearProgress variant="determinate" value={task.progress} sx={{ mt: 1 }} />
+                        </Box>
+                      }
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Box>
+  );
+
+  const renderLearningDemo = () => (
+    <Box sx={{ height: '500px', p: 2 }}>
+      <Grid container spacing={2} sx={{ height: '100%' }}>
+        <Grid item xs={12} md={8}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>协作学习进度</Typography>
+              <Box sx={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Box sx={{ textAlign: 'center' }}>
+                  <CircularProgress size={120} thickness={4} />
+                  <Typography variant="h4" sx={{ mt: 2 }}>87%</Typography>
+                  <Typography variant="body2" color="text.secondary">整体学习进度</Typography>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>学习统计</Typography>
+              <Box sx={{ mt: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                  <Typography variant="body2">知识共享次数</Typography>
+                  <Typography variant="h6" color="primary">1,247</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                  <Typography variant="body2">协作任务数</Typography>
+                  <Typography variant="h6" color="secondary">89</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                  <Typography variant="body2">性能提升</Typography>
+                  <Typography variant="h6" color="success">23%</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="body2">学习效率</Typography>
+                  <Typography variant="h6" color="info">94%</Typography>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Box>
+  );
+
   return (
     <Container maxWidth="lg">
-      <Typography variant="h4" gutterBottom sx={{ mt: 3, mb: 3 }}>
-        DSL演示
-      </Typography>
-      <Card>
+      <Box sx={{ mt: 3, mb: 3 }}>
+        <Typography variant="h4" gutterBottom>
+          多智能体DSL框架演示
+        </Typography>
+        <Typography variant="body1" color="text.secondary" gutterBottom>
+          体验企业级多智能体协作学习与自适应调度系统
+        </Typography>
+      </Box>
+
+      {/* 演示选择器 */}
+      <Box sx={{ mb: 3 }}>
+        <Grid container spacing={2}>
+          {demos.map((demo) => (
+            <Grid item xs={12} sm={6} md={3} key={demo.id}>
+              <Card 
+                sx={{ 
+                  cursor: 'pointer',
+                  border: selectedDemo === demo.id ? '2px solid #1976d2' : '1px solid #e0e0e0',
+                  '&:hover': { boxShadow: 4 }
+                }}
+                onClick={() => setSelectedDemo(demo.id)}
+              >
+                <CardContent sx={{ textAlign: 'center', p: 2 }}>
+                  <Box sx={{ color: 'primary.main', mb: 1 }}>
+                    {demo.icon}
+                  </Box>
+                  <Typography variant="h6" gutterBottom>
+                    {demo.title}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {demo.description}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
+
+      {/* 演示内容 */}
+      <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Typography variant="body1">
-            DSL演示功能正在开发中...
-          </Typography>
+          {selectedDemo === 'conversation' && renderConversationDemo()}
+          {selectedDemo === 'knowledge' && renderKnowledgeGraph()}
+          {selectedDemo === 'scheduling' && renderSchedulingDemo()}
+          {selectedDemo === 'learning' && renderLearningDemo()}
         </CardContent>
       </Card>
+
+      {/* 技术特色 */}
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={4}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                <ScienceIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+                ATSLP技术
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                自适应任务调度与负载均衡，根据实时情况动态调整智能体工作模式
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                <GroupIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+                HCMPL技术
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                层次化协作管理与协议学习，实现多智能体间的智能协作
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                <SchoolIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+                CALK技术
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                协作学习与知识共享，让智能体相互学习，不断提升整体性能
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
     </Container>
   );
 }
