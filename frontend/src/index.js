@@ -116,7 +116,8 @@ class WebSocketManager {
   connect() {
     try {
       // 连接到后端WebSocket服务
-      this.socket = io('http://localhost:8000', {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://multi-agent-dsl-backend.railway.app';
+      this.socket = io(backendUrl, {
         transports: ['websocket'],
         timeout: 5000,
       });
@@ -189,8 +190,62 @@ class WebSocketManager {
   }
 }
 
+// API管理器
+class APIManager {
+  constructor() {
+    this.baseURL = process.env.REACT_APP_BACKEND_URL || 'https://multi-agent-dsl-backend.railway.app';
+  }
+
+  async request(endpoint, options = {}) {
+    try {
+      const url = `${this.baseURL}${endpoint}`;
+      const response = await fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+        ...options,
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('API请求失败:', error);
+      throw error;
+    }
+  }
+
+  async get(endpoint) {
+    return this.request(endpoint, { method: 'GET' });
+  }
+
+  async post(endpoint, data) {
+    return this.request(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async put(endpoint, data) {
+    return this.request(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async delete(endpoint) {
+    return this.request(endpoint, { method: 'DELETE' });
+  }
+}
+
 // 全局WebSocket管理器
 const wsManager = new WebSocketManager();
+
+// 全局API管理器
+const apiManager = new APIManager();
 
 // 导航组件
 function Navigation() {
@@ -329,14 +384,34 @@ function AgentsPage() {
     };
   }, [agents]);
 
-  const handleAgentClick = (agent) => {
-    // 发送WebSocket消息
-    wsManager.send({
-      type: 'agent_interaction',
-      agentId: agent.id,
-      action: 'click',
-      timestamp: new Date().toISOString()
-    });
+  const handleAgentClick = async (agent) => {
+    try {
+      // 发送WebSocket消息
+      wsManager.send({
+        type: 'agent_interaction',
+        agentId: agent.id,
+        action: 'click',
+        timestamp: new Date().toISOString()
+      });
+      
+      // 尝试API调用获取智能体详情
+      try {
+        const agentDetails = await apiManager.get(`/api/agents/${agent.id}`);
+        console.log('智能体详情:', agentDetails);
+      } catch (apiError) {
+        console.log('API调用失败，使用模拟数据:', apiError.message);
+      }
+      
+      // 添加活动记录
+      setRecentActivities(prev => [{
+        id: Date.now(),
+        agent: agent.name,
+        action: '点击查看详情',
+        timestamp: new Date().toLocaleTimeString()
+      }, ...prev.slice(0, 9)]);
+    } catch (error) {
+      console.error('处理智能体点击失败:', error);
+    }
   };
 
   return (
