@@ -103,6 +103,11 @@ const translations = {
     smartCityDescription: "基于多智能体DSL框架的智慧城市交通管理系统",
     deploymentSolution: "部署交通智能体、天气智能体、停车智能体协作工作",
     agentCollaborationSuccessRate: "智能体协作成功率99.7%",
+    agentManagement: "智能体管理",
+    realTimeConnection: "实时连接",
+    offlineMode: "离线模式",
+    active: "活跃",
+    warning: "警告",
     dslCodeExample: `// 多智能体DSL代码示例
 agent WeatherAgent {
   capability: ["weather_prediction", "climate_analysis"]
@@ -228,6 +233,11 @@ workflow SmartCityWorkflow {
     smartCityDescription: "Smart city traffic management system based on multi-agent DSL framework",
     deploymentSolution: "Deploy traffic agents, weather agents, and parking agents for collaborative work",
     agentCollaborationSuccessRate: "Agent collaboration success rate 99.7%",
+    agentManagement: "Agent Management",
+    realTimeConnection: "Real-time Connection",
+    offlineMode: "Offline Mode",
+    active: "Active",
+    warning: "Warning",
     dslCodeExample: `// Multi-Agent DSL Code Example
 agent WeatherAgent {
   capability: ["weather_prediction", "climate_analysis"]
@@ -998,20 +1008,51 @@ function Navigation() {
             {t('title')}
           </Typography>
         </Box>
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
-          <Button color="inherit" startIcon={<CodeIcon />} onClick={() => navigate('/dsl-demo')}>
+        <Box sx={{
+          display: 'flex',
+          gap: { xs: 0.5, sm: 1 },
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          justifyContent: { xs: 'flex-end', sm: 'flex-start' }
+        }}>
+          <Button
+            color="inherit"
+            startIcon={<CodeIcon />}
+            onClick={() => navigate('/dsl-demo')}
+            sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' }, px: { xs: 1, sm: 2 } }}
+          >
             {t('dslDemo')}
           </Button>
-          <Button color="inherit" startIcon={<GroupIcon />} onClick={() => navigate('/agents')}>
+          <Button
+            color="inherit"
+            startIcon={<GroupIcon />}
+            onClick={() => navigate('/agents')}
+            sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' }, px: { xs: 1, sm: 2 } }}
+          >
             {t('agents')}
           </Button>
-          <Button color="inherit" startIcon={<VoiceIcon />} onClick={() => navigate('/multimodal')}>
+          <Button
+            color="inherit"
+            startIcon={<VoiceIcon />}
+            onClick={() => navigate('/multimodal')}
+            sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' }, px: { xs: 1, sm: 2 } }}
+          >
             {t('multimodal')}
           </Button>
-          <Button color="inherit" startIcon={<PsychologyIcon />} onClick={() => navigate('/knowledge-graph')}>
+          <Button
+            color="inherit"
+            startIcon={<PsychologyIcon />}
+            onClick={() => navigate('/knowledge-graph')}
+            sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' }, px: { xs: 1, sm: 2 } }}
+          >
             {t('knowledgeGraph')}
           </Button>
-          <Button color="inherit" startIcon={<DashboardIcon />} onClick={() => navigate('/dashboard')}>
+          <Button
+            color="inherit"
+            startIcon={<DashboardIcon />}
+            onClick={() => navigate('/dashboard')}
+            sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' }, px: { xs: 1, sm: 2 } }}
+          >
             {t('dashboard')}
           </Button>
           <LanguageSwitcher />
@@ -1023,6 +1064,7 @@ function Navigation() {
 
 // 智能体管理页面（带实时更新和动画效果）
 function AgentsPage() {
+  const { t } = useLanguage();
   const [agents, setAgents] = React.useState([
     { id: 1, name: 'Weather Agent', status: 'active', avatar: '🌤️', tasks: 23, efficiency: 96, cpu: 45, memory: 67, lastUpdate: Date.now() },
     { id: 2, name: 'Traffic Agent', status: 'active', avatar: '🚦', tasks: 45, efficiency: 94, cpu: 52, memory: 73, lastUpdate: Date.now() },
@@ -1316,10 +1358,10 @@ function AgentsPage() {
     <Container maxWidth="lg">
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 3, mb: 3 }}>
         <Typography variant="h4">
-          智能体管理
+          {t('agentManagement')}
         </Typography>
-        <Chip 
-          label={wsConnected ? '实时连接' : '离线模式'} 
+        <Chip
+          label={wsConnected ? t('realTimeConnection') : t('offlineMode')}
           color={wsConnected ? 'success' : 'default'}
           icon={wsConnected ? <CheckCircleIcon /> : <CloseIcon />}
         />
@@ -1896,42 +1938,78 @@ function HomePage() {
           {/* Stats Section */}
           <Fade in={true} timeout={1500}>
             <Grid container spacing={4} sx={{ mt: 4 }}>
-              <Grid item xs={6} md={3}>
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant="h2" sx={{ fontWeight: 700, mb: 1 }}>
+              <Grid item xs={12} sm={6} md={3}>
+                <Box sx={{ textAlign: 'center', p: 1 }}>
+                  <Typography variant="h2" sx={{
+                    fontWeight: 700,
+                    mb: 1,
+                    fontSize: { xs: '1.8rem', sm: '2.5rem', md: '3rem' }
+                  }}>
                     {stats.throughput}x
                   </Typography>
-                  <Typography variant="body1" sx={{ opacity: 0.8 }}>
+                  <Typography variant="body1" sx={{
+                    opacity: 0.8,
+                    fontSize: { xs: '0.85rem', sm: '1rem' },
+                    wordBreak: 'break-word',
+                    hyphens: 'auto'
+                  }}>
                     {t('throughputBoost')}
                   </Typography>
                 </Box>
               </Grid>
-              <Grid item xs={6} md={3}>
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant="h2" sx={{ fontWeight: 700, mb: 1 }}>
+              <Grid item xs={12} sm={6} md={3}>
+                <Box sx={{ textAlign: 'center', p: 1 }}>
+                  <Typography variant="h2" sx={{
+                    fontWeight: 700,
+                    mb: 1,
+                    fontSize: { xs: '1.8rem', sm: '2.5rem', md: '3rem' }
+                  }}>
                     {stats.cacheHitRate}%
                   </Typography>
-                  <Typography variant="body1" sx={{ opacity: 0.8 }}>
+                  <Typography variant="body1" sx={{
+                    opacity: 0.8,
+                    fontSize: { xs: '0.85rem', sm: '1rem' },
+                    wordBreak: 'break-word',
+                    hyphens: 'auto'
+                  }}>
                     {t('cacheHitRate')}
                   </Typography>
                 </Box>
               </Grid>
-              <Grid item xs={6} md={3}>
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant="h2" sx={{ fontWeight: 700, mb: 1 }}>
+              <Grid item xs={12} sm={6} md={3}>
+                <Box sx={{ textAlign: 'center', p: 1 }}>
+                  <Typography variant="h2" sx={{
+                    fontWeight: 700,
+                    mb: 1,
+                    fontSize: { xs: '1.8rem', sm: '2.5rem', md: '3rem' }
+                  }}>
                     {stats.latencyReduction}%
                   </Typography>
-                  <Typography variant="body1" sx={{ opacity: 0.8 }}>
+                  <Typography variant="body1" sx={{
+                    opacity: 0.8,
+                    fontSize: { xs: '0.85rem', sm: '1rem' },
+                    wordBreak: 'break-word',
+                    hyphens: 'auto'
+                  }}>
                     {t('latencyReduction')}
                   </Typography>
                 </Box>
               </Grid>
-              <Grid item xs={6} md={3}>
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant="h2" sx={{ fontWeight: 700, mb: 1 }}>
+              <Grid item xs={12} sm={6} md={3}>
+                <Box sx={{ textAlign: 'center', p: 1 }}>
+                  <Typography variant="h2" sx={{
+                    fontWeight: 700,
+                    mb: 1,
+                    fontSize: { xs: '1.8rem', sm: '2.5rem', md: '3rem' }
+                  }}>
                     {stats.agentSupport.toLocaleString()}+
                   </Typography>
-                  <Typography variant="body1" sx={{ opacity: 0.8 }}>
+                  <Typography variant="body1" sx={{
+                    opacity: 0.8,
+                    fontSize: { xs: '0.85rem', sm: '1rem' },
+                    wordBreak: 'break-word',
+                    hyphens: 'auto'
+                  }}>
                     {t('agentsSupported')}
                   </Typography>
                 </Box>
